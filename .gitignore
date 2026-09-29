@@ -1,0 +1,16 @@
+node_modules/
+dist/
+build/
+target/
+coverage/
+
+.env
+.env.local
+*.log
+
+.idea/
+.vscode/settings.json
+
+data/raw/
+*.dump
+*.backup
