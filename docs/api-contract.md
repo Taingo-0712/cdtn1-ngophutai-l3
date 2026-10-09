@@ -1,15 +1,16 @@
 # API Contract — L3: Cơ hội bán hàng và phễu bán
 
 **Môn học:** Chuyên đề tốt nghiệp 1 · **Track:** SE  
-**Ngày:** 06/10/2026 · **Phiên bản:** 0.1  
+**Ngày:** 09/10/2026 · **Phiên bản:** 0.2  
 **Tài liệu liên quan:** `docs/srs.md` — 9 User Story, 9 FR.
 
 ## 1. Quy ước chung
 
 - Đường dẫn gốc: `/api`. Backend dự kiến: Node.js/Express; CSDL: PostgreSQL.
+- Tên trường JSON dùng `snake_case`, ví dụ `customer_id`, `expected_value`, `created_at`.
 - Request có body và response dùng `application/json`, mã hóa UTF-8. GET không có request body; đầu vào nằm ở path/query.
 - Mọi endpoint yêu cầu `Authorization: Bearer <access_token>`. Backend lấy vai trò, mã nhân viên và cửa hàng từ phiên xác thực; không nhận chúng từ body để cấp quyền.
-- Nhân viên chỉ truy cập cơ hội mình phụ trách trong cửa hàng. Quản lý được đọc danh sách/chi tiết/lịch sử và xem phễu của cửa hàng phụ trách; không được tạo hoặc sửa cơ hội trong phạm vi bản này.
+- Nhân viên chỉ truy cập cơ hội mình phụ trách trong cửa hàng. Quản lý được đọc danh sách/chi tiết và xem phễu của cửa hàng phụ trách; không được tạo hoặc sửa cơ hội trong phạm vi bản này.
 - Số điện thoại trả về cho nhân viên luôn được che, ví dụ `090****567`; quản lý được xem đầy đủ. Không chỉ che tại giao diện.
 - Các ID là số nguyên dương. Tiền dùng số nguyên VND; thời điểm dùng ISO 8601 UTC (hậu tố `Z`). Giá trị tiền tối đa và độ dài dưới đây là đề xuất kỹ thuật để triển khai validation.
 - Các JSON mẫu sử dụng dữ liệu mô phỏng. Hợp đồng mô tả hành vi cần triển khai, chưa phải API đã chạy.
@@ -34,7 +35,7 @@
 | PATCH | `/api/opportunities/{id}/stage` | Chuyển giai đoạn và ghi lịch sử | Nhân viên phụ trách | US5 / FR5 / UC05 — MUST |
 | PATCH | `/api/opportunities/{id}/result` | Ghi nhận kết quả | Nhân viên phụ trách | US6 / FR6 / UC06 — SHOULD |
 | GET | `/api/reports/sales-funnel` | Thống kê phễu theo cửa hàng | Quản lý | US7 / FR7 / UC07 — SHOULD |
-| GET | `/api/opportunities/{id}/stage-history` | Xem lịch sử chuyển giai đoạn | Nhân viên, quản lý | US9 / FR9 / UC09 — SHOULD |
+| GET | `/api/opportunities/{id}/stage-history` | Xem lịch sử chuyển giai đoạn | Nhân viên phụ trách | US9 / FR9 / UC09 — SHOULD |
 
 ## 3. Mã HTTP và định dạng lỗi
 
@@ -115,6 +116,33 @@ Backend tự gán mã, người phụ trách và cửa hàng từ phiên hiện 
 
 **HTTP:** 201; 400 (validation/tham chiếu); 401; 403 (không phải nhân viên); 500.
 
+**Response 400 — ví dụ lỗi:**
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Dữ liệu tạo cơ hội không hợp lệ.",
+    "details": [
+      {
+        "field": "need",
+        "message": "Nhu cầu phải có từ 1 đến 500 ký tự."
+      }
+    ]
+  }
+}
+```
+
+**Response 403 — ví dụ lỗi:**
+```json
+{
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "Chỉ nhân viên bán hàng được tạo cơ hội.",
+    "details": []
+  }
+}
+```
+
 ### 4.2. Danh sách và lọc — GET /api/opportunities
 
 **Request mẫu:** `GET /api/opportunities?stage=CONSULTING&page=1&page_size=20`  
@@ -152,6 +180,33 @@ Sắp xếp mặc định `created_at` giảm dần, sau đó `id` giảm dần.
 
 **HTTP:** 200; 400 (query sai); 401; 403 (vai trò không hỗ trợ); 500.
 
+**Response 400 — ví dụ lỗi:**
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Bộ lọc giai đoạn không hợp lệ.",
+    "details": [
+      {
+        "field": "stage",
+        "message": "Giai đoạn phải là CONTACT, CONSULTING, QUOTATION hoặc CLOSED."
+      }
+    ]
+  }
+}
+```
+
+**Response 401 — ví dụ lỗi:**
+```json
+{
+  "error": {
+    "code": "UNAUTHENTICATED",
+    "message": "Phiên đăng nhập không hợp lệ hoặc đã hết hạn.",
+    "details": []
+  }
+}
+```
+
 ### 4.3. Chi tiết — GET /api/opportunities/{id}
 
 **Request mẫu:** `GET /api/opportunities/1001` — không có body.
@@ -188,6 +243,28 @@ Quản lý cùng đơn vị nhận cùng cấu trúc, trường `customer.phone`
 
 **HTTP:** 200; 400 (ID sai); 401; 403; 404; 500.
 
+**Response 403 — ví dụ lỗi:**
+```json
+{
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "Bạn không có quyền xem cơ hội này.",
+    "details": []
+  }
+}
+```
+
+**Response 404 — ví dụ lỗi:**
+```json
+{
+  "error": {
+    "code": "OPPORTUNITY_NOT_FOUND",
+    "message": "Không tìm thấy cơ hội.",
+    "details": []
+  }
+}
+```
+
 ### 4.4. Cập nhật thông tin — PATCH /api/opportunities/{id}
 
 **Request mẫu:** `PATCH /api/opportunities/1001`
@@ -219,6 +296,33 @@ Quản lý cùng đơn vị nhận cùng cấu trúc, trường `customer.phone`
 Chỉ cho sửa `product_id`, `need`, `expected_value`; trường bỏ qua giữ nguyên. Cơ hội đã có kết quả bị khóa. Validation thất bại không lưu bất kỳ phần thay đổi nào.
 
 **HTTP:** 200; 400; 401; 403; 404; 409 (OPPORTUNITY_FINALIZED); 500.
+
+**Response 400 — ví dụ lỗi:**
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Giá trị dự kiến không hợp lệ.",
+    "details": [
+      {
+        "field": "expected_value",
+        "message": "Giá trị dự kiến phải là số nguyên từ 0 đến 1000000000000 VND."
+      }
+    ]
+  }
+}
+```
+
+**Response 409 — ví dụ lỗi:**
+```json
+{
+  "error": {
+    "code": "OPPORTUNITY_FINALIZED",
+    "message": "Cơ hội đã có kết quả, không được chỉnh sửa.",
+    "details": []
+  }
+}
+```
 
 ### 4.5. Chuyển giai đoạn — PATCH /api/opportunities/{id}/stage
 
@@ -265,6 +369,28 @@ Chỉ chấp nhận CONTACT → CONSULTING → QUOTATION → CLOSED. Backend ki�
 ```
 **HTTP:** 200; 400 (giá trị stage không thuộc danh mục); 401; 403; 404; 409 (chuyển không hợp lệ/đã có kết quả); 500.
 
+**Response 403 — ví dụ lỗi:**
+```json
+{
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "Bạn không có quyền chuyển giai đoạn cơ hội này.",
+    "details": []
+  }
+}
+```
+
+**Response 500 — ví dụ lỗi:**
+```json
+{
+  "error": {
+    "code": "INTERNAL_ERROR",
+    "message": "Không thể lưu thay đổi; giai đoạn và lịch sử được giữ nguyên.",
+    "details": []
+  }
+}
+```
+
 ### 4.6. Ghi kết quả — PATCH /api/opportunities/{id}/result
 
 **Điều kiện mẫu:** Cơ hội đang ở CLOSED, chưa có kết quả.  
@@ -296,6 +422,33 @@ Chỉ chấp nhận CONTACT → CONSULTING → QUOTATION → CLOSED. Backend ki�
 Với WON, response có `result: "WON"`, `loss_reason: null`, cùng các trường còn lại như mẫu trên. Cơ hội giữ nguyên giai đoạn CLOSED. Ghi kết quả chỉ được thực hiện một lần; các lần sửa tiếp theo trả 409.
 
 **HTTP:** 200; 400 (kết quả/lý do sai); 401; 403; 404; 409 (chưa CLOSED hoặc đã có kết quả); 500.
+
+**Response 400 — ví dụ lỗi:**
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Thiếu lý do thất bại hợp lệ.",
+    "details": [
+      {
+        "field": "loss_reason",
+        "message": "Lý do thất bại phải có từ 1 đến 500 ký tự."
+      }
+    ]
+  }
+}
+```
+
+**Response 409 — ví dụ lỗi:**
+```json
+{
+  "error": {
+    "code": "RESULT_NOT_ALLOWED",
+    "message": "Chỉ được ghi kết quả khi cơ hội ở giai đoạn CLOSED.",
+    "details": []
+  }
+}
+```
 
 ### 4.7. Phễu bán — GET /api/reports/sales-funnel
 
@@ -332,6 +485,33 @@ Luôn trả đủ bốn giai đoạn đúng thứ tự. Mỗi cơ hội được
 
 **HTTP:** 200; 400 (query không hỗ trợ); 401; 403; 500.
 
+**Response 403 — ví dụ lỗi:**
+```json
+{
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "Chỉ quản lý cửa hàng được xem phễu bán hàng.",
+    "details": []
+  }
+}
+```
+
+**Response 400 — ví dụ lỗi:**
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Endpoint không nhận tham số cửa hàng.",
+    "details": [
+      {
+        "field": "store_id",
+        "message": "Không được truyền store_id; cửa hàng lấy từ phiên xác thực."
+      }
+    ]
+  }
+}
+```
+
 ### 4.8. Lịch sử — GET /api/opportunities/{id}/stage-history
 
 **Request:** `GET /api/opportunities/1001/stage-history` — không có body/query.
@@ -365,29 +545,51 @@ Luôn trả đủ bốn giai đoạn đúng thứ tự. Mỗi cơ hội được
   ]
 }
 ```
-Sắp xếp theo `changed_at` tăng dần, cùng thời điểm thì `id` tăng dần. Chưa chuyển giai đoạn trả `{"data": []}`. Kiểm tra quyền trên cơ hội trước khi truy vấn lịch sử.
+Sắp xếp theo `changed_at` tăng dần, cùng thời điểm thì `id` tăng dần. Chưa chuyển giai đoạn trả `{"data": []}`. Chỉ nhân viên phụ trách được xem lịch sử. Quản lý gọi endpoint này bị từ chối 403 trong phạm vi phiên bản hiện tại. Kiểm tra quyền trên cơ hội trước khi truy vấn lịch sử.
 
 **HTTP:** 200; 400; 401; 403; 404; 500.
+
+**Response 403 — ví dụ lỗi:**
+```json
+{
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "Chỉ nhân viên phụ trách được xem lịch sử cơ hội.",
+    "details": []
+  }
+}
+```
+
+**Response 404 — ví dụ lỗi:**
+```json
+{
+  "error": {
+    "code": "OPPORTUNITY_NOT_FOUND",
+    "message": "Không tìm thấy cơ hội.",
+    "details": []
+  }
+}
+```
 
 ## 5. Bảng validation đầu vào
 
 Áp dụng phía backend. Không ép chuỗi số trong JSON thành số; từ chối `null` trừ trường được cho phép rõ ràng. Body phải là JSON object. Từ chối trường body/query ngoài danh sách bằng 400; việc này ngăn người dùng tự gán `store_id`, `assigned_employee_id`, thời điểm hoặc kết quả qua endpoint không phù hợp.
 
-| Endpoint / vị trí | Trường | Bắt buộc | Kiểu | Quy tắc |
-|---|---|---|---|---|
-| Tất cả / header | Authorization | Có | Chuỗi | Bearer token hợp lệ, chưa hết hạn; lỗi trả 401. Token do hạ tầng xác thực cấp. |
-| Các endpoint có `{id}` / path | id | Có | Chuỗi biểu diễn số nguyên | Chỉ chữ số, giá trị 1–2147483647; không số âm, thập phân hoặc ký tự khác. |
-| POST / body | customer_id | Có | Số nguyên | 1–2147483647; tham chiếu khách hàng tồn tại, được phép sử dụng. |
-| POST / body; PATCH thông tin / body | product_id | POST: có; PATCH: tùy chọn | Số nguyên | 1–2147483647; sản phẩm phải tồn tại và được phép sử dụng. |
-| POST / body; PATCH thông tin / body | need | POST: có; PATCH: tùy chọn | Chuỗi | Trim đầu/cuối; 1–500 ký tự sau trim. |
-| POST / body; PATCH thông tin / body | expected_value | POST: có; PATCH: tùy chọn | Số nguyên | 0–1000000000000 VND; không chấp nhận chuỗi hoặc số thập phân. |
-| PATCH thông tin / body | Toàn bộ body | Có | Object | Có ít nhất một trong product_id, need, expected_value; `{}` trả 400. Không sửa customer_id. |
-| GET danh sách / query | stage | Không | Chuỗi | Một trong CONTACT, CONSULTING, QUOTATION, CLOSED; phân biệt hoa/thường; chuỗi rỗng trả 400. |
-| GET danh sách / query | page | Không | Chuỗi biểu diễn số nguyên | 1–1000000; mặc định 1; tham số lặp bị từ chối. |
-| GET danh sách / query | page_size | Không | Chuỗi biểu diễn số nguyên | 1–100; mặc định 20; tham số lặp bị từ chối. |
-| PATCH stage / body | stage | Có | Chuỗi | Thuộc bốn giá trị giai đoạn; sai danh mục trả 400, đúng danh mục nhưng chuyển sai bước trả 409. |
-| PATCH result / body | result | Có | Chuỗi | Chỉ WON hoặc LOST; không chấp nhận null. |
-| PATCH result / body | loss_reason | Có nếu LOST | Chuỗi hoặc null | LOST: trim, dài 1–500 ký tự. WON: chỉ được bỏ qua hoặc null; gửi chuỗi trả 400. |
+| Endpoint / vị trí | Trường | Bắt buộc | Kiểu | Quy tắc  Thông báo lỗi khi vi phạm |
+|---|---|---|---|------|
+| Tất cả / header | Authorization | Có | Chuỗi | Bearer token hợp lệ, chưa hết hạn; lỗi trả 401. Token do hạ tầng xác thực cấp.  Thiếu hoặc sai Bearer token; phiên đăng nhập đã hết hạn. |
+| Các endpoint có `{id}` / path | id | Có | Chuỗi biểu diễn số nguyên | Chỉ chữ số, giá trị 1–2147483647; không số âm, thập phân hoặc ký tự khác.  Mã cơ hội phải là số nguyên từ 1 đến 2147483647. |
+| POST / body | customer_id | Có | Số nguyên | 1–2147483647; tham chiếu khách hàng tồn tại, được phép sử dụng.  Mã khách hàng không hợp lệ hoặc không được phép sử dụng. |
+| POST / body; PATCH thông tin / body | product_id | POST: có; PATCH: tùy chọn | Số nguyên | 1–2147483647; sản phẩm phải tồn tại và được phép sử dụng.  Mã sản phẩm không hợp lệ hoặc không được phép sử dụng. |
+| POST / body; PATCH thông tin / body | need | POST: có; PATCH: tùy chọn | Chuỗi | Trim đầu/cuối; 1–500 ký tự sau trim.  Nhu cầu phải có từ 1 đến 500 ký tự. |
+| POST / body; PATCH thông tin / body | expected_value | POST: có; PATCH: tùy chọn | Số nguyên | 0–1000000000000 VND; không chấp nhận chuỗi hoặc số thập phân.  Giá trị dự kiến phải là số nguyên từ 0 đến 1000000000000 VND. |
+| PATCH thông tin / body | Toàn bộ body | Có | Object | Có ít nhất một trong product_id, need, expected_value; `{}` trả 400. Không sửa customer_id.  Phải cung cấp ít nhất một trường được phép cập nhật. |
+| GET danh sách / query | stage | Không | Chuỗi | Một trong CONTACT, CONSULTING, QUOTATION, CLOSED; phân biệt hoa/thường; chuỗi rỗng trả 400.  Giai đoạn phải là CONTACT, CONSULTING, QUOTATION hoặc CLOSED. |
+| GET danh sách / query | page | Không | Chuỗi biểu diễn số nguyên | 1–1000000; mặc định 1; tham số lặp bị từ chối.  page phải là số nguyên từ 1 đến 1000000 và chỉ xuất hiện một lần. |
+| GET danh sách / query | page_size | Không | Chuỗi biểu diễn số nguyên | 1–100; mặc định 20; tham số lặp bị từ chối.  page_size phải là số nguyên từ 1 đến 100 và chỉ xuất hiện một lần. |
+| PATCH stage / body | stage | Có | Chuỗi | Thuộc bốn giá trị giai đoạn; sai danh mục trả 400, đúng danh mục nhưng chuyển sai bước trả 409.  Giai đoạn không hợp lệ (400); chỉ được chuyển sang giai đoạn kế tiếp (409). |
+| PATCH result / body | result | Có | Chuỗi | Chỉ WON hoặc LOST; không chấp nhận null.  Kết quả phải là WON hoặc LOST. |
+| PATCH result / body | loss_reason | Có nếu LOST | Chuỗi hoặc null | LOST: trim, dài 1–500 ký tự. WON: chỉ được bỏ qua hoặc null; gửi chuỗi trả 400.  LOST: lý do phải có từ 1 đến 500 ký tự; WON: lý do phải được bỏ qua hoặc null. |
 
 Với query, không chấp nhận tham số lặp hoặc dạng mảng/object. Body của GET không được sử dụng làm đầu vào. Các trường `id`, `stage`, `result`, `loss_reason`, `assigned_employee_id`, `store_id`, `created_at`, `updated_at` trong response do máy chủ quản lý hoặc chỉ được sửa qua endpoint chuyên biệt như trên.
 
@@ -404,3 +606,7 @@ Với query, không chấp nhận tham số lặp hoặc dạng mảng/object. B
 | Lỗi | Có error.code, error.message và error.details; details chứa field/message khi liên quan validation. |
 
 Kiểm chứng dự kiến bằng Postman theo TC01–TC28 trong SRS. Với TC19, endpoint phễu không nhận tham số cửa hàng nên yêu cầu cố truyền `store_id` được trả 400; kết quả cốt lõi vẫn là không tiết lộ dữ liệu cửa hàng khác. Kiểm tra bổ sung PATCH ngoài quyền để bao phủ NFR2; kiểm tra transaction rollback theo TC14. API phải tuân theo các ngưỡng NFR trong SRS; tài liệu này không xác nhận các test đã chạy hoặc đạt.
+
+### 6.1. Đối chiếu mô hình dữ liệu
+
+Các trường body `customer_id`, `product_id`, `need`, `expected_value`, `stage`, `result`, `loss_reason` cần được đối chiếu với ERD L3 khi hoàn thiện mô hình dữ liệu. Chưa xác nhận bước đối chiếu ERD trong phiên bản này. Các giới hạn số là ngưỡng thiết kế đề xuất, không phải số đo hiệu năng thực tế.
