@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.1.2 Chrome/138.0.7204.243 Electron/37.4.0 Safari/537.36" version="28.1.2">
   <diagram name="Page-1" id="qgibQJa9c8eCUS_DinM7">
-    <mxGraphModel dx="1489" dy="943" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="996" dy="931" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -41,13 +41,22 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="0pqqyUHx4Zjs6EAgon4t-35" value="&lt;p&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;&lt;font&gt;&lt;strong&gt;Chú thích:&lt;/strong&gt;&amp;nbsp;&lt;/font&gt;&lt;/span&gt;&lt;/p&gt;&lt;div&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;[ ] = màn hình | v = hướng phụ thuộc (một chiều)&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;&lt;p&gt;&lt;font&gt;Hình chữ nhật biểu diễn lớp kiến trúc.&lt;/font&gt;&lt;/p&gt;&lt;p&gt;&lt;font&gt;Mũi tên thể hiện hướng gọi từ lớp trên xuống lớp dưới;&amp;nbsp;&lt;/font&gt;&lt;/p&gt;&lt;p&gt;&lt;font&gt;kết quả được trả về theo lời gọi.&lt;/font&gt;&lt;/p&gt;&lt;p&gt;&lt;font&gt;&lt;strong&gt;Ngoài phạm vi:&lt;/strong&gt; Dự báo doanh thu; đơn hàng, thanh toán, kho, bảo hành; tạo/gộp hồ sơ khách hàng; báo cáo toàn công ty.&lt;/font&gt;&lt;/p&gt;" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;fontSize=13;fontFamily=Times New Roman;" vertex="1" parent="1">
-          <mxGeometry x="610" y="510" width="210" height="330" as="geometry" />
+          <mxGeometry x="600" y="510" width="220" height="330" as="geometry" />
         </mxCell>
         <mxCell id="0pqqyUHx4Zjs6EAgon4t-36" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontFamily=Times New Roman;fontSize=13;" edge="1" parent="1" source="0pqqyUHx4Zjs6EAgon4t-23" target="0pqqyUHx4Zjs6EAgon4t-26">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="370" y="620" as="sourcePoint" />
             <mxPoint x="420" y="570" as="targetPoint" />
           </mxGeometry>
+        </mxCell>
+        <mxCell id="0pqqyUHx4Zjs6EAgon4t-38" value="SQL" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="360" y="740" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="0pqqyUHx4Zjs6EAgon4t-39" value="Gọi qua giao diện Repository" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="360" y="535" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="0pqqyUHx4Zjs6EAgon4t-42" value="HTTP + JSON — theo hợp đồng API" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="370" y="290" width="200" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
