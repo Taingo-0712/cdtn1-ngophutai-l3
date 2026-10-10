@@ -1,0 +1,101 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.1.2 Chrome/138.0.7204.243 Electron/37.4.0 Safari/537.36" version="28.1.2">
+  <diagram id="l3-erd" name="ERD L3">
+    <mxGraphModel dx="2084" dy="1320" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1750" pageHeight="1330" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="ERD — L3: CƠ HỘI BÁN HÀNG VÀ PHỄU BÁN" style="text;html=1;fontSize=26;align=left;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="15" width="1500" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="edge0" value="thuộc cửa hàng" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERmandOne;endArrow=ERzeroToMany;fontSize=20;exitX=0.5;exitY=1;entryX=0.601;entryY=-0.011;exitDx=0;exitDy=0;strokeWidth=2;fontFamily=Times New Roman;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="dzvN1F_eRdMak02uK5Da-1" target="dzvN1F_eRdMak02uK5Da-2" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+            <mxPoint x="240" y="233.99999999999977" as="sourcePoint" />
+            <mxPoint x="260" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge1" value="phụ trách" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERmandOne;endArrow=ERzeroToMany;fontSize=20;exitX=1.005;exitY=0.841;strokeWidth=2;exitDx=0;exitDy=0;exitPerimeter=0;fontFamily=Times New Roman;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" parent="1" source="dzvN1F_eRdMak02uK5Da-2" target="dzvN1F_eRdMak02uK5Da-9" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="450" y="478" />
+              <mxPoint x="450" y="438" />
+              <mxPoint x="560" y="438" />
+              <mxPoint x="560" y="410" />
+              <mxPoint x="600" y="410" />
+              <mxPoint x="600" y="409" />
+            </Array>
+            <mxPoint x="420" y="425" as="sourcePoint" />
+            <mxPoint x="600" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge2" value="khách hàng" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERmandOne;endArrow=ERzeroToMany;fontSize=20;strokeWidth=2;entryX=0;entryY=0.75;entryDx=0;entryDy=0;fontFamily=Times New Roman;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="dzvN1F_eRdMak02uK5Da-3" target="dzvN1F_eRdMak02uK5Da-9" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="480" y="660" />
+              <mxPoint x="480" y="520" />
+              <mxPoint x="580" y="520" />
+              <mxPoint x="580" y="546" />
+            </Array>
+            <mxPoint x="410" y="660" as="sourcePoint" />
+            <mxPoint x="580" y="522.1799999999998" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge3" value="sản phẩm" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERmandOne;endArrow=ERzeroToMany;fontSize=20;strokeWidth=2;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;fontFamily=Times New Roman;" parent="1" source="dzvN1F_eRdMak02uK5Da-4" target="dzvN1F_eRdMak02uK5Da-9" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="850" y="680" />
+              <mxPoint x="740" y="680" />
+            </Array>
+            <mxPoint x="430" y="880" as="sourcePoint" />
+            <mxPoint x="600" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge4" value="lưu lịch sử" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERmandOne;endArrow=ERzeroToMany;fontSize=20;exitX=1.003;exitY=0.555;strokeWidth=2;exitDx=0;exitDy=0;entryX=0;entryY=0.4;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Times New Roman;exitPerimeter=0;" parent="1" source="dzvN1F_eRdMak02uK5Da-9" target="dzvN1F_eRdMak02uK5Da-5" edge="1">
+          <mxGeometry x="0.1072" y="20" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1210" y="493" />
+              <mxPoint x="1210" y="540" />
+              <mxPoint x="1320" y="540" />
+              <mxPoint x="1320" y="522" />
+            </Array>
+            <mxPoint x="1105" y="590" as="sourcePoint" />
+            <mxPoint x="1249" y="535" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge5" value="người thực hiện" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=ERmandOne;endArrow=ERzeroToMany;fontSize=20;strokeWidth=2;fontFamily=Times New Roman;exitX=1.003;exitY=0.321;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.583;entryY=-0.016;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="dzvN1F_eRdMak02uK5Da-2" target="dzvN1F_eRdMak02uK5Da-5" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="478" y="405" />
+              <mxPoint x="478" y="270" />
+              <mxPoint x="1640" y="270" />
+            </Array>
+            <mxPoint x="450" y="420" as="sourcePoint" />
+            <mxPoint x="1640" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dzvN1F_eRdMak02uK5Da-1" value="&lt;div style=&quot;box-sizing:border-box;width:100%;background:#e4e4e4;padding:2px;&quot;&gt;&lt;b style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;Cửa hàng — store&lt;/b&gt;&lt;/div&gt;&lt;table style=&quot;width: 100%;&quot; cellpadding=&quot;2&quot; cellspacing=&quot;0&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;[PK]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span&gt;store_id: BIGSERIAL&lt;/span&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;span&gt;[NN]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span&gt;store_name: VARCHAR(120)&amp;nbsp;&lt;/span&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fontSize=20;gradientColor=none;strokeWidth=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="60" y="150" width="390" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="dzvN1F_eRdMak02uK5Da-2" value="&lt;div style=&quot;box-sizing:border-box;width:100%;background:#e4e4e4;padding:2px;&quot;&gt;&lt;b style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;Người dùng — app_user&lt;/b&gt;&lt;br style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;&lt;/div&gt;&lt;table cellspacing=&quot;0&quot; cellpadding=&quot;2&quot; style=&quot;width: 100%;&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;&lt;span&gt;[PK]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;user_id: BIGSERIAL&amp;nbsp;&lt;/span&gt;&lt;br&gt;&lt;span&gt;[FK, NN]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;store_id: BIGINT&lt;/span&gt;&lt;br&gt;&lt;span&gt;[NN]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;full_name: VARCHAR(120)&amp;nbsp;&lt;/span&gt;&lt;br&gt;&lt;span&gt;[NN, CHECK]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;role: VARCHAR(20)&amp;nbsp;&lt;/span&gt;&lt;/td&gt;&lt;td&gt;&lt;br&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;br&gt;&lt;/td&gt;&lt;td&gt;&lt;br&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=20;" vertex="1" parent="1">
+          <mxGeometry x="10" y="360" width="410" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="dzvN1F_eRdMak02uK5Da-3" value="&lt;div style=&quot;box-sizing:border-box;width:100%;background:#e4e4e4;padding:2px;&quot;&gt;&lt;b style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;Khách hàng — customer&lt;/b&gt;&lt;/div&gt;&lt;table cellspacing=&quot;0&quot; cellpadding=&quot;2&quot; style=&quot;width: 100%;&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;&lt;span&gt;[PK]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;customer_id: BIGSERIAL&lt;/span&gt;&lt;br&gt;&lt;span&gt;[NN]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;full_name: VARCHAR(120)&amp;nbsp;&lt;/span&gt;&lt;br&gt;&lt;span&gt;[NN, UQ]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;phone: VARCHAR(20)&amp;nbsp;&lt;/span&gt;&lt;/td&gt;&lt;td&gt;&lt;br&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=20;" vertex="1" parent="1">
+          <mxGeometry x="10" y="600" width="430" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="dzvN1F_eRdMak02uK5Da-4" value="&lt;div style=&quot;box-sizing:border-box;width:100%;background:#e4e4e4;padding:2px;&quot;&gt;&lt;b style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;Sản phẩm — product&lt;/b&gt;&lt;/div&gt;&lt;div style=&quot;box-sizing:border-box;width:100%;background:#e4e4e4;padding:2px;&quot;&gt;&lt;b style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;&lt;span style=&quot;font-weight: 400; background-color: rgb(236, 236, 236);&quot;&gt;[PK]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;&lt;span style=&quot;font-weight: 400; background-color: rgb(236, 236, 236);&quot;&gt;product_id: BIGSERIAL&lt;/span&gt;&lt;br style=&quot;font-weight: 400; background-color: rgb(236, 236, 236);&quot;&gt;&lt;span style=&quot;font-weight: 400; background-color: rgb(236, 236, 236);&quot;&gt;[NN]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;&lt;span style=&quot;color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); font-weight: 400; background-color: rgb(236, 236, 236);&quot;&gt;product_name: VARCHAR(150)&amp;nbsp;&lt;/span&gt;&lt;/b&gt;&lt;/div&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=20;" vertex="1" parent="1">
+          <mxGeometry x="680" y="700" width="430" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="dzvN1F_eRdMak02uK5Da-5" value="&lt;div style=&quot;box-sizing:border-box;width:100%;background:#e4e4e4;padding:2px;&quot;&gt;&lt;b style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;Lịch sử chuyển giai đoạn — opportunity_stage_history&lt;/b&gt;&lt;br style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;&lt;/div&gt;&lt;table cellspacing=&quot;0&quot; cellpadding=&quot;2&quot; style=&quot;width: 100%;&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;&lt;span&gt;[PK]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;history_id: BIGSERIAL&amp;nbsp;&lt;/span&gt;&lt;br&gt;&lt;span&gt;[FK, NN]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;opportunity_id: BIGINT&amp;nbsp;&lt;/span&gt;&lt;br&gt;&lt;span&gt;[NN, CHECK]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;from_stage: VARCHAR(20)&amp;nbsp;&lt;/span&gt;&lt;br&gt;&lt;span&gt;[NN, CHECK]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;to_stage: VARCHAR(20)&lt;/span&gt;&lt;br&gt;&lt;span&gt;[FK, NN]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;changed_by: BIGINT&lt;/span&gt;&lt;br&gt;&lt;span&gt;[NN]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;changed_at: TIMESTAMPTZ&amp;nbsp;&lt;/span&gt;&lt;/td&gt;&lt;td&gt;&lt;br&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=20;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="460" width="480" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="dzvN1F_eRdMak02uK5Da-9" value="&lt;div style=&quot;box-sizing:border-box;width:100%;background:#e4e4e4;padding:2px;&quot;&gt;&lt;b style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;Cơ hội bán hàng — opportunity&lt;/b&gt;&lt;/div&gt;&lt;span&gt;&lt;span style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;[PK]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;opportunity_id: BIGSERIAL&amp;nbsp;&lt;/span&gt;&lt;br style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;&lt;span style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;[FK, NN]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;customer_id: BIGINT&amp;nbsp;&lt;/span&gt;&lt;br style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;&lt;span style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;[FK, NN]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;product_id: BIGINT&amp;nbsp;&lt;/span&gt;&lt;br style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;&lt;span style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;[FK, NN]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;owner_id: BIGINT&amp;nbsp;&lt;/span&gt;&lt;br style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;&lt;span style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;[NN, CHECK]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;need: VARCHAR(500)&lt;/span&gt;&lt;br style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;&lt;span style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;[NN, CHECK]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;expected_value: NUMERIC(15,2)&lt;/span&gt;&lt;br style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;&lt;span style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;[NN, CHECK]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;stage: VARCHAR(20)&amp;nbsp;&lt;/span&gt;&lt;br style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;&lt;span style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;[NULL, CHECK]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;result: VARCHAR(20)&amp;nbsp;&lt;/span&gt;&lt;br style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;&lt;span style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;[NULL, CHECK]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;failure_reason: VARCHAR(500)&amp;nbsp;&lt;/span&gt;&lt;br style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;&lt;span style=&quot;background-color: rgb(236, 236, 236);&quot;&gt;[NN]&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;created_at: TIMESTAMPTZ&amp;nbsp;&lt;/span&gt;&lt;/span&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=20;" vertex="1" parent="1">
+          <mxGeometry x="640" y="340" width="520" height="275" as="geometry" />
+        </mxCell>
+        <mxCell id="dzvN1F_eRdMak02uK5Da-10" value="&lt;span style=&quot;text-wrap-mode: nowrap;&quot;&gt;&lt;b&gt;CHÚ THÍCH:&amp;nbsp;&lt;/b&gt;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;text-wrap-mode: nowrap;&quot;&gt;PK = khóa chính; FK = khóa ngoại; NN = NOT NULL; UQ = UNIQUE; NULL = được phép để trống.&lt;/span&gt;&lt;br style=&quot;text-wrap-mode: nowrap;&quot;&gt;&lt;span style=&quot;text-wrap-mode: nowrap;&quot;&gt;Quan hệ 1 → 0..N: mỗi bản ghi con thuộc đúng một bản ghi cha; một bản ghi cha có thể chưa có bản ghi con.&lt;/span&gt;&lt;br style=&quot;text-wrap-mode: nowrap;&quot;&gt;&lt;span style=&quot;text-wrap-mode: nowrap;&quot;&gt;CHECK: miền giai đoạn/kết quả, giá trị ≥ 0, độ dài nhu cầu/lý do và điều kiện kết quả chỉ ở Chốt.&lt;/span&gt;&lt;br style=&quot;text-wrap-mode: nowrap;&quot;&gt;&lt;span style=&quot;text-wrap-mode: nowrap;&quot;&gt;INDEX: opportunity(owner_id, stage, created_at); app_user(store_id, role); lịch sử(opportunity_id, changed_at, history_id).&lt;/span&gt;&lt;br style=&quot;text-wrap-mode: nowrap;&quot;&gt;&lt;span style=&quot;text-wrap-mode: nowrap;&quot;&gt;Giả định prototype: người dùng thuộc một cửa hàng cố định; cửa hàng cơ hội suy ra qua owner_id → app_user.store_id.&lt;/span&gt;&lt;br style=&quot;text-wrap-mode: nowrap;&quot;&gt;&lt;span style=&quot;text-wrap-mode: nowrap;&quot;&gt;Phễu tính bằng COUNT theo stage, không lưu bảng phễu. Bảng tham chiếu có sẵn: store, app_user, customer, product.&lt;/span&gt;&lt;/div&gt;" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;fontSize=20;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="100" y="840" width="1070" height="190" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
