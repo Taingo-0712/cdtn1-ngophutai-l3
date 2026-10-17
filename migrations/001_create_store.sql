@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS store (
+    store_id BIGSERIAL PRIMARY KEY,
+    store_code VARCHAR(20) NOT NULL UNIQUE,
+    store_name VARCHAR(120) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

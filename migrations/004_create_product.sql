@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS product (
+    product_id BIGSERIAL PRIMARY KEY,
+    product_code VARCHAR(30) NOT NULL UNIQUE,
+    product_name VARCHAR(150) NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

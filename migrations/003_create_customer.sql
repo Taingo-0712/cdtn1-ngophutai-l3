@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS customer (
+    customer_id BIGSERIAL PRIMARY KEY,
+    full_name VARCHAR(120) NOT NULL,
+    phone VARCHAR(20) NOT NULL UNIQUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
