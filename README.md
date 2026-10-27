@@ -34,7 +34,7 @@ Các lệnh dưới đây chạy trong **PowerShell / Terminal của VS Code**, 
 ### 3.1. Clone repository và mở project
 
 ```powershell
-git clone <REPOSITORY_URL>
+git clone https://github.com/Taingo-0712/cdtn1-ngophutai-l3.git
 cd cdtn1-ngophutai-l3
 ```
 
