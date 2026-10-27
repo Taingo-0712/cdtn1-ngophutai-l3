@@ -45,6 +45,83 @@ router.post("/", async (req, res) => {
   }
 });
 
+// PATCH /api/opportunities/:id/stage
+router.patch("/:id/stage", async (req, res) => {
+  try {
+    const data = await opportunityService.updateOpportunityStage(
+      req.params.id,
+      req.body.stage
+    );
+
+    res.json(data);
+  } catch (error) {
+    if (error.message === "OPPORTUNITY_NOT_FOUND") {
+      return res.status(404).json({
+        message: error.message
+      });
+    }
+
+    if (
+      error.message === "INVALID_STAGE" ||
+      error.message === "INVALID_STAGE_TRANSITION"
+    ) {
+      return res.status(400).json({
+        message: error.message
+      });
+    }
+
+    console.error("Update stage error:", error);
+
+    return res.status(500).json({
+      message: "INTERNAL_SERVER_ERROR"
+    });
+  }
+});
+
+// PATCH /api/opportunities/:id/result
+router.patch("/:id/result", async (req, res) => {
+  try {
+    const data = await opportunityService.updateOpportunityResult(
+      req.params.id,
+      req.body.result,
+      req.body.failure_reason
+    );
+
+    return res.status(200).json(data);
+  } catch (error) {
+    if (error.message === "OPPORTUNITY_NOT_FOUND") {
+      return res.status(404).json({
+        message: error.message
+      });
+    }
+
+    if (
+      error.message === "INVALID_RESULT" ||
+      error.message === "FAILURE_REASON_REQUIRED"
+    ) {
+      return res.status(400).json({
+        message: error.message
+      });
+    }
+
+    if (
+      error.message === "OPPORTUNITY_NOT_AT_CHOT" ||
+      error.message === "RESULT_ALREADY_RECORDED" ||
+      error.message === "RESULT_UPDATE_CONFLICT"
+    ) {
+      return res.status(409).json({
+        message: error.message
+      });
+    }
+
+    console.error("Update opportunity result error:", error);
+
+    return res.status(500).json({
+      message: "INTERNAL_SERVER_ERROR"
+    });
+  }
+});
+
 // PATCH /api/opportunities/:id
 router.patch("/:id", async (req, res) => {
   try {
