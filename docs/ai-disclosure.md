@@ -54,6 +54,96 @@
 
 ---
 
+### II.3. HỖ TRỢ LỚP GỌI API FRONTEND — 25/10/2026
+
+| Công cụ | Dùng vào việc gì | Áp dụng ở phần nào | Đã kiểm chứng thế nào |
+| --- | --- | --- | --- |
+| Codex | Thêm hàm request và hai hàm đọc cơ hội theo đoạn mã người dùng cung cấp. | frontend/src/api/client.js; frontend/src/api/opportunities.api.js | Đối chiếu với mẫu yêu cầu; chưa xác nhận gọi API thật hoặc kết nối PostgreSQL từ giao diện. |
+
+### II.4. HỖ TRỢ COMPONENT TRẠNG THÁI DỮ LIỆU — 25/10/2026
+
+| Công cụ | Dùng vào việc gì | Áp dụng ở phần nào | Đã kiểm chứng thế nào |
+| --- | --- | --- | --- |
+| Codex | Tạo component dùng chung hiển thị tải dữ liệu, lỗi kèm nút thử lại, dữ liệu rỗng và nội dung theo đúng mã người dùng cung cấp; chưa tích hợp vào màn hình. | frontend/src/components/DataState.jsx | Đối chiếu với đoạn mã yêu cầu; chưa kiểm thử hiển thị trên trình duyệt. |
+
+### II.5. HỖ TRỢ APP HIỂN THỊ TRANG DANH SÁCH — 27/10/2026
+
+| Công cụ | Dùng vào việc gì | Áp dụng ở phần nào | Đã kiểm chứng thế nào |
+| --- | --- | --- | --- |
+| Codex | Thay nội dung App theo mã người dùng cung cấp để hiển thị OpportunityListPage (US2/FR2). | frontend/src/App.jsx | Ngày 27/10/2026: ESLint cho App.jsx và git diff --check đạt; npm run build thất bại vì OpportunityListPage.jsx đang trống, thiếu export default. Chưa kiểm thử giao diện hoặc API thật. |
+
+### II.6. HỖ TRỢ MÀN HÌNH CHI TIẾT VÀ CHUYỂN MÀN HÌNH — 27/10/2026
+
+| Công cụ | Dùng vào việc gì | Áp dụng ở phần nào | Đã kiểm chứng thế nào |
+| --- | --- | --- | --- |
+| Codex | Tạo màn hình chi tiết chỉ đọc theo mã người dùng cung cấp (US3/FR3); nối danh sách và chi tiết bằng React State, thêm cột Thao tác và nút Xem chi tiết (US2/FR2). | frontend/src/pages/OpportunityDetailPage.jsx; frontend/src/pages/OpportunityListPage.jsx; frontend/src/App.jsx | Ngày 27/10/2026: ESLint cho ba file và npm run build đạt. Chưa kiểm thử trên trình duyệt hoặc gọi API thật. |
+
+### II.7. HỖ TRỢ MÀN HÌNH TẠO CƠ HỘI — 27/10/2026
+
+| Công cụ | Dùng vào việc gì | Áp dụng ở phần nào | Đã kiểm chứng thế nào |
+| --- | --- | --- | --- |
+| Codex | Thêm hàm POST, tạo form theo mã người dùng cung cấp (US1/FR1), nối ba màn hình bằng React State; thành công chuyển sang chi tiết theo opportunity_id. | frontend/src/api/opportunities.api.js; frontend/src/pages/CreateOpportunityPage.jsx; frontend/src/App.jsx | Ngày 27/10/2026: ESLint cho ba file và npm run build đạt; đã đối chiếu payload với service/repository hiện tại. Chưa gửi POST, kiểm thử trình duyệt hoặc xác nhận lưu PostgreSQL. Form chưa dùng DataState; khác biệt với SRS/API contract được ghi tại TD-07. |
+
+### II.8. HỖ TRỢ CSS CHUNG CHO BA MÀN HÌNH — 27/10/2026
+
+| Công cụ | Dùng vào việc gì | Áp dụng ở phần nào | Đã kiểm chứng thế nào |
+| --- | --- | --- | --- |
+| Codex | Thay CSS mẫu Vite bằng CSS người dùng cung cấp cho danh sách, chi tiết và form tạo cơ hội; thêm import App.css, giữ nguyên logic chuyển màn hình. | frontend/src/index.css; frontend/src/App.css; frontend/src/App.jsx | Ngày 27/10/2026: ESLint cho App.jsx và npm run build đạt. Chưa kiểm tra hiển thị trên trình duyệt hoặc thiết bị di động. |
+
+### II.9. HỖ TRỢ ROUTE CHUYỂN GIAI ĐOẠN — 27/10/2026
+
+| Công cụ | Dùng vào việc gì | Áp dụng ở phần nào | Đã kiểm chứng thế nào |
+| --- | --- | --- | --- |
+| Codex | Chèn PATCH /:id/stage trước PATCH /:id đúng mẫu người dùng cung cấp (US5/FR5), giữ nguyên các route CRUD cũ. | src/routes/opportunity.routes.js | Ngày 27/10/2026: node --check đạt; node --test tests/opportunity.service.test.js đạt 1/1 (test giá trị tạo cơ hội âm, không kiểm chứng chuyển giai đoạn). Service hiện chưa có updateOpportunityStage; chưa gọi endpoint hoặc xác nhận transaction/lịch sử. Khác biệt mã lỗi được ghi tại TD-09. |
+
+### II.10. HỖ TRỢ SERVICE CHUYỂN GIAI ĐOẠN — 27/10/2026
+
+| Công cụ | Dùng vào việc gì | Áp dụng ở phần nào | Đã kiểm chứng thế nào |
+| --- | --- | --- | --- |
+| Codex | Thêm và export updateOpportunityStage đúng mã người dùng cung cấp (US5/FR5); bổ sung unit test cho ba bước hợp lệ, bốn chuyển bước bị cấm, giai đoạn ngoài danh mục và cơ hội không tồn tại. | src/services/opportunity.service.js; tests/opportunity.stage.service.test.js | Ngày 27/10/2026: node --check cho service đạt; chạy hai file unit test đạt 10/10. Test stage dùng repository giả lập; repository thật chưa có updateStage. Chưa xác nhận HTTP, lưu PostgreSQL, lịch sử hoặc transaction. |
+
+### II.11. HỖ TRỢ TRANSACTION CHUYỂN GIAI ĐOẠN — 27/10/2026
+
+| Công cụ | Dùng vào việc gì | Áp dụng ở phần nào | Đã kiểm chứng thế nào |
+| --- | --- | --- | --- |
+| Codex | Thêm và export updateStage đúng mã người dùng cung cấp: khóa bản ghi, kiểm tra lại bước chuyển, cập nhật giai đoạn và ghi lịch sử trong transaction (US5/FR5, BR6). Bổ sung 5 unit test repository. | src/repositories/opportunity.repository.js; tests/opportunity.stage.repository.test.js | Ngày 27/10/2026: node --check cho repository đạt; ba file unit test đạt 15/15 với kết nối giả lập. Chưa kiểm thử HTTP, rollback dữ liệu hoặc hai yêu cầu đồng thời trên PostgreSQL thật. changed_by tạm lấy owner_id theo yêu cầu demo; xem TD-11. |
+
+### II.12. HỖ TRỢ CHUYỂN GIAI ĐOẠN TRÊN REACT — 27/10/2026
+
+| Công cụ | Dùng vào việc gì | Áp dụng ở phần nào | Đã kiểm chứng thế nào |
+| --- | --- | --- | --- |
+| Codex | Thêm hàm PATCH và khối chuyển giai đoạn trong DataState theo mã người dùng cung cấp (US5/FR5); hiển thị bước kế tiếp, trạng thái đang cập nhật, lỗi và tải lại chi tiết sau thành công; thêm CSS. | frontend/src/api/opportunities.api.js; frontend/src/pages/OpportunityDetailPage.jsx; frontend/src/App.css | Ngày 27/10/2026: ESLint cho hai file JavaScript thay đổi và npm run build đạt. Chưa kiểm thử thao tác trên trình duyệt hoặc gửi PATCH thật. Người dùng mô tả API đã được kiểm thử bằng Postman; Codex chưa xác minh độc lập kết quả đó. |
+
+### II.13. HỖ TRỢ REPOSITORY GHI KẾT QUẢ — 27/10/2026
+
+| Công cụ | Dùng vào việc gì | Áp dụng ở phần nào | Đã kiểm chứng thế nào |
+| --- | --- | --- | --- |
+| Codex | Thêm và export updateResult(id, result, failureReason) đúng mẫu người dùng cung cấp (US6/FR6), chỉ cập nhật khi stage là CHOT và result còn NULL. | src/repositories/opportunity.repository.js | Ngày 27/10/2026: node --check đạt; chạy lại 15 unit test hiện có, tất cả đạt. Các test hiện có không kiểm chứng updateResult; chưa chạy SQL mới trên PostgreSQL hoặc nối service/route ghi kết quả. |
+
+### II.14. HỖ TRỢ SERVICE GHI KẾT QUẢ — 27/10/2026
+
+| Công cụ | Dùng vào việc gì | Áp dụng ở phần nào | Đã kiểm chứng thế nào |
+| --- | --- | --- | --- |
+| Codex | Thêm và export updateOpportunityResult đúng mã người dùng cung cấp (US6/FR6, BR4); bổ sung 9 unit test kiểm tra kết quả, điều kiện CHOT/chưa có kết quả, lý do thất bại, chuẩn hóa dữ liệu và xung đột. | src/services/opportunity.service.js; tests/opportunity.result.service.test.js | Ngày 27/10/2026: node --check cho service đạt; bốn file unit test đạt 24/24 với repository/kết nối giả lập. Chưa kiểm thử route, SQL ghi kết quả hoặc truy cập đồng thời trên PostgreSQL thật. Các giới hạn còn lại được ghi tại TD-14. |
+
+### II.15. HỖ TRỢ ROUTE GHI NHẬN KẾT QUẢ — 27/10/2026
+
+| Công cụ | Dùng vào việc gì | Áp dụng ở phần nào | Đã kiểm chứng thế nào |
+| --- | --- | --- | --- |
+| Codex | Chèn PATCH /:id/result đúng mẫu sau route /:id/stage và trước PATCH /:id (US6/FR6), gọi service và ánh xạ lỗi sang HTTP 400/404/409/500. | src/routes/opportunity.routes.js | Ngày 27/10/2026: node --check cho route đạt; chạy lại bốn file unit test đạt 24/24. Các test dùng repository/kết nối giả lập và không bao phủ HTTP route; chưa gửi PATCH thật hoặc xác nhận ghi kết quả PostgreSQL. |
+
+### II.16. HỖ TRỢ GHI NHẬN KẾT QUẢ TRÊN REACT — 27/10/2026
+
+| Công cụ | Dùng vào việc gì | Áp dụng ở phần nào | Đã kiểm chứng thế nào |
+| --- | --- | --- | --- |
+| Codex | Thêm API helper PATCH kết quả, tạo OpportunityResult theo mẫu người dùng, gắn sau phần chuyển giai đoạn trong chi tiết và thêm CSS (US6/FR6). | frontend/src/api/opportunities.api.js; frontend/src/components/OpportunityResult.jsx; frontend/src/pages/OpportunityDetailPage.jsx; frontend/src/App.css | Ngày 27/10/2026: ESLint cho ba file JavaScript thay đổi và npm run build đạt. Chưa kiểm thử trình duyệt, gửi PATCH thật hoặc xác nhận kết quả cơ hội số 1 trong PostgreSQL. |
+
+### II.17. RÀ SOÁT DATASTATE, API VÀ XÁC THỰC — 27/10/2026
+
+| Công cụ | Dùng vào việc gì | Áp dụng ở phần nào | Đã kiểm chứng thế nào |
+| --- | --- | --- | --- |
+| Codex | Rà soát DataState, ba màn hình, lớp API, Vite proxy và cơ chế xác thực; không sửa mã ứng dụng. | frontend/src/components/DataState.jsx; frontend/src/pages/; frontend/src/api/; frontend/vite.config.js; src/index.js; src/ | Ngày 27/10/2026: ESLint cho DataState, pages và api đạt. Tìm mã nguồn xác nhận fetch chỉ nằm ở api/client.js. Chạy script kiểm tra tạm với fetch giả lập đạt 9/9: lỗi mạng, proxy 500/502, JSON sai, danh sách hợp lệ/rỗng, lỗi 404, hành vi 401 và gọi lại sau lỗi. Lần đầu script bị lỗi mã hóa tiếng Việt khi truyền qua PowerShell; đã sửa script và chạy lại đạt. Test 401 chỉ xác nhận lỗi thông thường không có metadata status, chưa xác nhận xử lý đăng nhập. Backend chưa có middleware xác thực/route đăng nhập; form tạo có loading/error riêng, chưa dùng DataState và chưa tải danh mục nên Empty chưa có ý nghĩa hiện tại. Chưa thử tắt/bật backend hoặc kiểm thử giao diện/nút Thử lại trên trình duyệt; phiên không có runtime điều khiển trình duyệt khả dụng. |
+
 ### III. CAM KẾT VỀ LIÊM CHÍNH HỌC THUẬT
 
 > **"Tôi xác nhận đã đọc, hiểu và chịu trách nhiệm về toàn bộ nội dung nộp."**
