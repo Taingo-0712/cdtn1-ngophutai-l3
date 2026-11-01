@@ -1,261 +1,183 @@
-# L3 – Cơ hội bán hàng và phễu bán
+# L3 — Cơ hội bán hàng và phễu bán
 
-**Sinh viên:** Ngô Phú Tài – MSSV: 2374802010441 – Track SE  
-**Học phần:** Chuyên đề Tốt nghiệp 1, HK1 2026–2027  
-**Case study:** Smart CRM – Mekong Mobile
+**Sinh viên:** Ngô Phú Tài — **MSSV:** 2374802010441 — **Track:** SE  
+**Học phần:** Chuyên đề tốt nghiệp 1 — **Case study:** Smart CRM, Mekong Mobile  
+**Bản cập nhật:** 01/11/2026, chuẩn bị BT2.
 
-## 1. Mục tiêu
+## Chức năng hiện có
 
-Xây dựng ứng dụng web hỗ trợ nhân viên bán hàng tạo, theo dõi và cập nhật cơ hội từ khách hàng quan tâm theo quy trình:
+- Nhân viên đăng nhập, tạo cơ hội từ khách hàng/sản phẩm có sẵn; xem và sửa cơ hội phụ trách.
+- Chuyển tuần tự Tiếp cận → Tư vấn → Báo giá → Chốt; cập nhật và ghi lịch sử trong cùng transaction. Lỗi ghi lịch sử thì rollback.
+- Ghi Thành công/Thất bại ở Chốt, không ghi đè kết quả; Thất bại cần lý do.
+- Quản lý xem danh sách, chi tiết và phễu trong cửa hàng. Phễu đếm theo giai đoạn hiện tại, luôn có đủ bốn giai đoạn.
+- Xem lịch sử trong phạm vi được phép, theo thời gian tăng dần.
+- API CRUD sản phẩm (thực thể CRUD thứ hai); xóa mềm bằng is_active.
+- React có đăng nhập, tạo, danh sách, chi tiết, chuyển giai đoạn, kết quả, phễu và lịch sử; có trạng thái đang tải/rỗng/lỗi.
 
-**Tiếp cận → Tư vấn → Báo giá → Chốt → Ghi nhận kết quả (Thành công/Thất bại)**.
+Khách hàng là dữ liệu tham chiếu được chuẩn bị sẵn. Tạo/gộp hồ sơ khách hàng thuộc L1, ngoài phạm vi L3. Không có đơn hàng, thanh toán, kho, bảo hành hay dự báo doanh thu.
 
-Nhân viên có thể tạo, xem danh sách, xem chi tiết, chuyển giai đoạn theo thứ tự và ghi nhận kết quả chốt (nhập lý do nếu thất bại). Dữ liệu được lưu trong PostgreSQL; lịch sử chuyển giai đoạn được ghi vào bảng riêng.
+## Môi trường
 
-Phạm vi hiện tại tập trung vào quản lý cơ hội bán hàng và luồng nghiệp vụ L3. Báo cáo phễu bán hàng và phân quyền đăng nhập thực tế chưa được xác nhận hoàn thiện; dự báo doanh thu không thuộc module cốt lõi hiện tại.
+Node.js 22.12+ hoặc 24, npm, PostgreSQL 16 và psql; PowerShell trên Windows. Backend: Express, pg, bcryptjs, jsonwebtoken. Frontend: React/Vite. Hai ứng dụng dùng hai package-lock.json riêng.
 
-## 2. Yêu cầu môi trường
+## Dựng từ mã nguồn
 
-- Node.js và npm (kiểm tra: `node --version`, `npm --version`)
-- PostgreSQL 16, công cụ `psql` (hoặc pgAdmin để chạy SQL)
-- Git, Visual Studio Code (khuyến nghị)
-- Trình duyệt web; Postman phục vụ kiểm thử API (tùy chọn)
-
-**Công nghệ:** JavaScript, Node.js, Express.js, thư viện `pg`, `dotenv`, PostgreSQL; React và Vite cho Frontend, CSS cho giao diện.
-
-Backend đọc cấu hình từ file `.env` tại thư mục gốc. Dùng `.env.example` làm mẫu với các biến `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `JWT_SECRET` (dự phòng), `PORT`. Tệp `.env` và các thông tin xác thực không được đưa vào kho mã nguồn.
-
-**Giới hạn hiện tại:** Chức năng xác thực JWT và phân quyền người dùng chưa được triển khai hoàn chỉnh; biến `JWT_SECRET` trong cấu hình không đại diện cho một cơ chế đăng nhập đã hoạt động.
-
-## 3. Hướng dẫn cài đặt và chạy
-
-Các lệnh dưới đây chạy trong **PowerShell / Terminal của VS Code**, trừ khi có ghi khác. Dùng **hai Terminal riêng** cho Backend và Frontend.
-
-### 3.1. Clone repository và mở project
+### 1. Lấy mã và cài dependencies
 
 ```powershell
 git clone https://github.com/Taingo-0712/cdtn1-ngophutai-l3.git
 cd cdtn1-ngophutai-l3
+npm ci
+npm ci --prefix frontend
 ```
 
-Trong lệnh trên, `<REPOSITORY_URL>` là địa chỉ GitHub của dự án. Với mã nguồn đã có sẵn trên máy, có thể mở trực tiếp thư mục gốc `cdtn1-ngophutai-l3`.
+Khi tag v0.2 đã được đẩy, dùng `git checkout v0.2` để lấy đúng bản nộp. Không copy node_modules giữa các máy/hệ điều hành.
 
-### 3.2. Cài thư viện Backend và Frontend
-
-Tại thư mục gốc:
-
-```powershell
-npm install
-```
-
-Tiếp theo:
-
-```powershell
-cd frontend
-npm install
-cd ..
-```
-
-Backend và Frontend quản lý thư viện độc lập thông qua hai tệp `package.json` tương ứng.
-
-### 3.3. Cấu hình PostgreSQL
-
-Khởi động PostgreSQL và tạo database một lần (chạy với tài khoản PostgreSQL có quyền tạo database):
-
-```powershell
-psql -U postgres -h localhost -p 5432 -c "CREATE DATABASE mekong_mobile_l3;"
-```
-
-Nếu database đã tồn tại, bỏ qua bước tạo database để bảo toàn dữ liệu hiện có. Khi `psql` không được nhận diện, chạy `psql.exe` từ thư mục `bin` của PostgreSQL hoặc dùng pgAdmin để tạo database.
-
-Tại thư mục gốc, tạo `.env` từ file mẫu:
+### 2. Cấu hình — chỉ làm khi chưa có .env
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Thiết lập các thông số kết nối PostgreSQL trong `.env` theo môi trường triển khai. Cấu hình tham khảo:
+Mở .env, điền DB_PASSWORD đúng tài khoản PostgreSQL; DEMO_PASSWORD tự đặt ít nhất 8 ký tự, tối đa 72 byte UTF-8. Năm tài khoản mô phỏng dùng mật khẩu này sau khi chạy seed đăng nhập. Không gửi hoặc commit .env.
 
-```dotenv
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=mekong_mobile_l3
-DB_USER=postgres
-DB_PASSWORD=<POSTGRESQL_PASSWORD>
-PORT=3000
-```
-
-Giá trị `<POSTGRESQL_PASSWORD>` được cấu hình theo tài khoản PostgreSQL tương ứng. Tệp `.env` chứa thông tin kết nối nhạy cảm và được loại trừ khỏi kho mã nguồn thông qua `.gitignore`. Biến `JWT_SECRET` hiện chưa được sử dụng cho cơ chế xác thực hoàn chỉnh. Tên database trong `.env` phải trùng với database đã thực hiện migration.
-
-### 3.4. Chạy migration theo đúng thứ tự
-
-Tại **thư mục gốc**, chạy từng lệnh (tùy chọn `-v ON_ERROR_STOP=1` để dừng khi SQL lỗi):
+Tạo JWT_SECRET một lần bằng lệnh sau tại thư mục gốc; khóa được lưu trực tiếp, không in ra màn hình:
 
 ```powershell
-psql -v ON_ERROR_STOP=1 -U postgres -d mekong_mobile_l3 -f migrations/001_create_store.sql
-psql -v ON_ERROR_STOP=1 -U postgres -d mekong_mobile_l3 -f migrations/002_create_app_user.sql
-psql -v ON_ERROR_STOP=1 -U postgres -d mekong_mobile_l3 -f migrations/003_create_customer.sql
-psql -v ON_ERROR_STOP=1 -U postgres -d mekong_mobile_l3 -f migrations/004_create_product.sql
-psql -v ON_ERROR_STOP=1 -U postgres -d mekong_mobile_l3 -f migrations/005_create_opportunity.sql
-psql -v ON_ERROR_STOP=1 -U postgres -d mekong_mobile_l3 -f migrations/006_create_opportunity_stage_history.sql
-psql -v ON_ERROR_STOP=1 -U postgres -d mekong_mobile_l3 -f migrations/007_create_indexes.sql
+@'
+const fs = require('node:fs');
+const crypto = require('node:crypto');
+let content = fs.readFileSync('.env', 'utf8');
+const pattern = /^JWT_SECRET\s*=.*$/m;
+const line = 'JWT_SECRET=' + crypto.randomBytes(32).toString('hex');
+content = pattern.test(content) ? content.replace(pattern, line) : content + '\n' + line + '\n';
+fs.writeFileSync('.env', content);
+console.log('Da thiet lap JWT_SECRET.');
+'@ | node
 ```
 
-Các bảng chính: `store`, `app_user`, `customer`, `product`, `opportunity`, `opportunity_stage_history`.
+Đổi khóa làm token cũ mất hiệu lực. Không cần tạo lại khóa mỗi lần chạy ứng dụng.
 
-### 3.5. Seed dữ liệu mẫu
+### 3. Tạo database mới
+
+Khởi động dịch vụ PostgreSQL. Ví dụ dưới dùng PostgreSQL 16 cài mặc định; thay đường dẫn, host, cổng và tài khoản nếu máy khác. Tên DB phải trùng DB_NAME trong .env.
 
 ```powershell
-psql -v ON_ERROR_STOP=1 -U postgres -d mekong_mobile_l3 -f seeds/001_seed_demo.sql
+$psqlPath = 'C:\Program Files\PostgreSQL\16\bin\psql.exe'
+& $psqlPath -h localhost -p 5432 -U postgres -d postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE mekong_mobile_l3;'
 ```
 
-Chỉ seed sau khi tạo bảng. Theo kết quả đã ghi nhận từ Sprint 1, migration và seed đã được kiểm tra chạy lại không tạo trùng dữ liệu; vẫn cần kiểm tra lại khi clone trên máy sạch.
+Nếu database đã có thì bỏ qua lệnh CREATE DATABASE; không xóa database để sửa lỗi. Nhập mật khẩu ở lời nhắc psql.
 
-### 3.6. Khởi động Backend (Terminal 1)
+### 4. Chạy migration 001–008 rồi seed
 
-Tại thư mục gốc:
+Từ thư mục gốc, cùng Terminal đã khai báo $psqlPath:
+
+```powershell
+Get-ChildItem migrations -Filter *.sql | Sort-Object Name | ForEach-Object {
+    & $psqlPath -h localhost -p 5432 -U postgres -d mekong_mobile_l3 -v ON_ERROR_STOP=1 -f $_.FullName
+    if ($LASTEXITCODE -ne 0) { throw "Migration that bai: $($_.Name)" }
+}
+& $psqlPath -h localhost -p 5432 -U postgres -d mekong_mobile_l3 -v ON_ERROR_STOP=1 -f seeds/001_seed_demo.sql
+```
+
+Chỉ tiếp tục nếu SQL không báo ERROR. Sau đó:
+
+```powershell
+node seeds/002_setup_demo_login.js
+node seeds/004_seed_references.js
+```
+
+001 tạo dữ liệu nền; 002 thiết lập tài khoản và cơ hội mô phỏng cho hai cửa hàng; 004 bổ sung 10 khách hàng mô phỏng, 8 sản phẩm để chọn trên giao diện. Các script chạy lại không thêm trùng dữ liệu mẫu còn tồn tại. 002 đặt lại mật khẩu demo theo DEMO_PASSWORD hiện tại; không đặt lại giai đoạn/kết quả cơ hội đã xử lý. ID tự sinh nên không cố định giữa các database.
+
+| Tài khoản | Vai trò | Cửa hàng |
+|---|---|---|
+| sales01, sales02 | SALES | MM001 |
+| manager01 | MANAGER | MM001 |
+| sales03 | SALES | MM002 |
+| manager02 | MANAGER | MM002 |
+
+### 5. Chạy ứng dụng
+
+Terminal 1, thư mục gốc:
 
 ```powershell
 npm start
 ```
 
-Mặc định: `http://localhost:3000`. Kiểm tra bằng trình duyệt hoặc Postman:
+Mặc định Backend http://localhost:3000. GET /health trả status=ok, database=connected khi kết nối được PostgreSQL.
 
-- `GET http://localhost:3000/health` → dự kiến `{ "status": "ok", "database": "connected" }`.
-- `GET http://localhost:3000/api/opportunities` → danh sách cơ hội JSON.
-
-Trường hợp kết nối cơ sở dữ liệu thất bại, kiểm tra thông số trong `.env`, trạng thái dịch vụ PostgreSQL và kết quả migration.
-
-### 3.7. Khởi động Frontend React (Terminal 2)
-
-Mở Terminal **khác**, từ thư mục gốc:
+Terminal 2, thư mục gốc:
 
 ```powershell
-cd frontend
-npm run dev
+npm run dev --prefix frontend
 ```
 
-Mở URL do Vite in trong Terminal, thường là `http://localhost:5173`.
+Mở URL Local Vite in ra (thường http://localhost:5173). Vite chuyển /api sang localhost:3000; nếu đổi PORT thì sửa proxy trong frontend/vite.config.js tương ứng. Đăng nhập bằng một tài khoản mô phỏng ở bảng trên.
 
-Frontend sử dụng Vite proxy cho `/api` đến Backend ở `http://localhost:3000`. Backend và Frontend cần hoạt động đồng thời. Nếu cổng Backend thay đổi, cấu hình proxy trong `frontend/vite.config.js` cần được cập nhật tương ứng.
+Dừng tiến trình bằng Ctrl+C. Sau khi sửa Backend, lưu file rồi dừng và npm start lại. Frontend tải lại trang sẽ yêu cầu đăng nhập; token lưu trong sessionStorage, hết hạn sau 1 giờ kể từ khi cấp. Hết hạn thì đăng xuất và đăng nhập lại.
 
-Các thao tác trên giao diện: tạo cơ hội → xem chi tiết → chuyển lần lượt `TIEP_CAN → TU_VAN → BAO_GIA → CHOT` → ghi nhận `THANH_CONG` hoặc `THAT_BAI` (có lý do) → xem lại danh sách.
-
-Để dừng từng tiến trình, chọn đúng Terminal và nhấn `Ctrl + C`.
-
-### 3.8. Chạy kiểm thử
-
-Tại **thư mục gốc**, chạy:
+## Kiểm thử và build
 
 ```powershell
 npm test
+npm run build --prefix frontend
 ```
 
-Kết quả lần chạy gần nhất (27/10/2026): **24 tests, 24 pass, 0 fail**. Kết quả có thể được tái kiểm chứng bằng lệnh trên trong môi trường triển khai tương ứng.
+Bản hiện tại có 44 unit test, dùng Repository/kết nối giả lập; đã chạy 44 PASS trong môi trường AI. Không cần database thật cho bộ test này. Không đồng nhất kết quả này với Postman hay kiểm thử PostgreSQL thực tế.
 
-Kiểm tra chất lượng mã Frontend (khi script `lint` được khai báo trong `frontend/package.json`):
+Kiểm tra lại seed:
 
 ```powershell
-cd frontend
-npm run lint
+node seeds/002_setup_demo_login.js
+node seeds/004_seed_references.js
 ```
 
-### 3.9. Kiểm tra chạy lại từ bản clone mới
+Cơ hội vừa tạo ở TIEP_CAN; chuyển TU_VAN → BAO_GIA → CHOT rồi ghi kết quả. Gửi lặp kết quả phải 409. SALES chỉ xem/xử lý cơ hội phụ trách, MANAGER xem dữ liệu trong cửa hàng và không được sửa. Xem hướng dẫn Postman trong docs/kiem-tra-ban-sua.md.
 
-Việc kiểm chứng khả năng tái triển khai được thực hiện bằng cách clone repository vào một thư mục độc lập, thực hiện lại các bước từ mục **3.1 đến 3.8** và xác nhận Backend, Frontend, `GET /health` cùng `npm test` hoạt động theo tài liệu. **Trạng thái: chưa xác nhận hoàn tất kiểm thử clone độc lập.**
+Xóa cơ hội mới chưa có lịch sử: 200; cơ hội đã có lịch sử: 409 OPPORTUNITY_HAS_HISTORY, giữ dữ liệu liên quan. Đây là DELETE hiện có được bảo vệ, không phải quy trình xóa nghiệp vụ đầy đủ.
 
-## 4. Cấu trúc thư mục
+## API chính
 
-```text
-cdtn1-ngophutai-l3/
-├── data/                        # Dữ liệu phục vụ module (nếu có)
-├── docs/                        # Tài liệu, AI disclosure, ảnh minh chứng
-├── frontend/                    # React + Vite
-│   └── src/
-│       ├── api/                 # client.js, opportunities.api.js
-│       ├── components/          # DataState, OpportunityResult, ...
-│       └── pages/               # Danh sách, chi tiết, tạo cơ hội
-├── migrations/                  # Tạo bảng/index PostgreSQL
-├── seeds/                       # Dữ liệu mẫu
-├── src/
-│   ├── routes/                  # Định nghĩa endpoint
-│   ├── services/                # Quy tắc nghiệp vụ
-│   ├── repositories/            # Truy vấn PostgreSQL
-│   ├── db.js                    # Kết nối PostgreSQL
-│   └── index.js                 # Khởi động Express
-├── tests/                       # Kiểm thử Node.js
-├── .env.example                 # Mẫu cấu hình
-├── .gitignore
-├── package.json
-└── README.md
-```
+Tất cả API cơ hội cần Authorization: Bearer <token>. POST /api/auth/login nhận username/password, trả token và thông tin người dùng; GET /api/auth/me kiểm tra tài khoản hiện tại.
 
-## 5. Kiểm thử
+| Method | Đường dẫn | Quyền / mục đích |
+|---|---|---|
+| GET | /api/opportunities | Danh sách trong phạm vi |
+| GET | /api/opportunities/references | Chọn khách hàng/sản phẩm, không trả số điện thoại |
+| GET | /api/opportunities/funnel | MANAGER, phễu cửa hàng |
+| GET | /api/opportunities/:id | Chi tiết trong phạm vi |
+| GET | /api/opportunities/:id/history | Lịch sử trong phạm vi |
+| POST | /api/opportunities | SALES, tự gán owner_id từ tài khoản |
+| PATCH | /api/opportunities/:id | SALES phụ trách, sửa nhu cầu/giá trị |
+| PATCH | /api/opportunities/:id/stage | SALES phụ trách, stage kế tiếp |
+| PATCH | /api/opportunities/:id/result | SALES phụ trách, result và failure_reason |
+| DELETE | /api/opportunities/:id | SALES phụ trách, bị chặn khi có lịch sử |
 
-Sử dụng **Node.js built-in test runner**:
+Các mã đang triển khai: TIEP_CAN, TU_VAN, BAO_GIA, CHOT; kết quả THANH_CONG/THAT_BAI. 401: chưa xác thực; 403: sai vai trò; 404: không tìm thấy hoặc ngoài quyền; 400: dữ liệu sai; 409: xung đột nghiệp vụ; 500: lỗi nội bộ.
 
-```powershell
-npm test
-```
+## Kiến trúc và tài liệu
 
-Kết quả ghi nhận ngày 27/10/2026: **24/24 PASS, 0 FAIL**. Nội dung kiểm thử gồm:
+- src/routes: nhận HTTP, chuyển mã lỗi.
+- src/services: validation, phân quyền/nghiệp vụ; không viết SQL.
+- src/repositories: truy vấn PostgreSQL, transaction.
+- migrations: schema/index; seeds: dữ liệu mô phỏng.
+- frontend/src: React gọi API thật.
+- tests: Node test runner.
+- docs: SRS, thiết kế, thay đổi thiết kế, khai báo AI, minh chứng.
 
-- Tạo cơ hội với `expected_value` âm bị từ chối.
-- Chuyển giai đoạn hợp lệ; từ chối nhảy bước, lặp bước và đi lùi.
-- Transaction cập nhật giai đoạn và lịch sử; rollback khi lỗi ghi lịch sử/cập nhật.
-- Ghi kết quả chốt: kiểm tra giai đoạn `CHOT`, không ghi đè, bắt buộc lý do khi `THAT_BAI`, và xử lý xung đột.
+## Giới hạn và điểm cần công khai
 
-Kiểm thử API bằng Postman đã bao gồm đọc cơ hội, chuyển giai đoạn, kiểm tra chuyển sai, ghi kết quả chốt. Luồng E2E trên React đã được thực hiện và ghi nhận thành công: **tạo → xem → chuyển ba giai đoạn → ghi kết quả → xem lại dữ liệu**.
+- Chưa có lọc danh sách theo giai đoạn (FR8).
+- FR4 chưa đầy đủ: chưa sửa sản phẩm và chưa khóa sửa thông tin khi cơ hội đã có kết quả. API sửa nhu cầu/giá trị đã có phân quyền, nhưng chưa có form sửa trong React.
+- API sản phẩm chưa áp dụng đăng nhập/phân quyền; không dùng bản này cho dữ liệu thật.
+- Không trả số điện thoại trong API tham chiếu; chưa triển khai màn hình hiển thị/che số theo vai trò.
+- Chưa đo p95/tải hoặc kiểm chứng concurrency trên PostgreSQL 16. Kiểm tra SQL/API trong môi trường AI dùng PGlite, không phải PostgreSQL server trên Windows.
+- Hợp đồng API BT1 có tên trường/mã cũ; bảng API ở README phản ánh triển khai hiện tại, sai lệch cần đối chiếu khi nghiệm thu.
+- Chưa xác nhận phép thử clone sạch với database mới trên máy sinh viên. Không ghi đã tái lập thành công trước khi thực hiện.
 
-**DataState:** Error và Retry đã được quan sát trên giao diện; Empty được kiểm tra với phản hồi `[]` mô phỏng, không xóa dữ liệu PostgreSQL. Trạng thái Loading và Error/Retry riêng ở màn hình chi tiết cần đính kèm minh chứng nếu chưa chụp.
+## Phép thử dựng lại độc lập
 
-Danh mục tên tệp minh chứng dự kiến trong `docs/` (chỉ đưa vào kho mã nguồn những ảnh đã được ghi nhận thực tế): `frontend-list.png`, `frontend-create.png`, `frontend-detail-stage.png`, `frontend-result.png`, `e2e-postgresql.png`, `unit-test-24-pass.png`, `datastate-error.png`, `datastate-empty.png`.
+Clone vào thư mục khác, dùng database MỚI (ví dụ mekong_mobile_l3_verify), sửa DB_NAME trong .env của bản clone và tên DB trong mọi lệnh psql cho thống nhất. Làm lần lượt các bước cài thư viện, cấu hình, migration, seed, test, Backend và Frontend ở trên. Giữ bản đang chạy và database cũ nguyên vẹn.
 
-## 6. Trạng thái hiện tại
-
-### Buổi 1–2
-
-- [x] Chọn luồng L3 – Cơ hội bán hàng và phễu bán.
-- [x] Khởi tạo repository GitHub và project Node.js.
-- [x] Cài Express; tạo cấu trúc thư mục, `.gitignore`, `.env.example`.
-- [x] Tạo và kiểm tra smoke test `/health`.
-
-### Buổi 3–4
-
-- [x] Phân tích yêu cầu; xây dựng User Story, FR, NFR.
-- [x] Use Case Diagram, đặc tả Use Case, API Contract, SRS và truy vết.
-
-### Buổi 5–6
-
-- [x] Thiết kế kiến trúc phân lớp và ERD.
-- [x] Thiết kế 6 bảng: `store`, `app_user`, `customer`, `product`, `opportunity`, `opportunity_stage_history`.
-- [x] Hoàn thiện BT1, ghi nhận phản hồi và thay đổi thiết kế.
-
-### Buổi 7–8 (Sprint 1)
-
-- [x] Xây dựng Backend theo Routes → Services → Repositories.
-- [x] Kết nối PostgreSQL, tạo migration, index và seed.
-- [x] Xây dựng CRUD cơ hội và API `/health`.
-- [x] Viết Unit Test đầu tiên (trước đây 1 PASS).
-
-### Buổi 9–10 (Sprint 2)
-
-- [x] Xây dựng Frontend React/Vite: danh sách, chi tiết và tạo cơ hội.
-- [x] Tích hợp API thật; hiển thị dữ liệu từ PostgreSQL.
-- [x] Chuyển giai đoạn tuần tự và ghi lịch sử chuyển giai đoạn.
-- [x] Ghi nhận kết quả chốt thành công/thất bại (yêu cầu lý do nếu thất bại).
-- [x] Chạy luồng E2E qua React từ tạo cơ hội đến ghi nhận kết quả.
-- [x] `npm test`: **24 PASS, 0 FAIL**.
-- [x] Kiểm tra Error và Retry trên danh sách; kiểm tra Empty bằng phản hồi `[]` mô phỏng.
-- [x] Rà soát ESLint và API giả lập (theo kết quả đã thực hiện: ESLint đạt, 9/9 kiểm tra giả lập đạt).
-- [ ] Hoàn thiện bằng chứng Loading và Error/Retry ở màn hình chi tiết (nếu chưa có).
-- [ ] Kiểm chứng clone mới theo mục 3 (chưa có kết quả xác nhận).
-- [ ] Kiểm tra/hoàn thành ảnh minh chứng trong `docs/` và liên kết GitHub.
-- [ ] Kiểm tra đủ số lượng Conventional Commits và bổ sung peer review theo yêu cầu buổi 10.
-
-### Hạn chế và phần việc sau
-
-- Chưa có xác thực và phân quyền người dùng thực tế; chưa kiểm chứng luồng HTTP 401/đăng nhập lại. Trong lịch sử chuyển giai đoạn, `changed_by` hiện dùng nhân viên phụ trách cho dữ liệu demo, **chưa chứng minh được danh tính người thao tác**.
-- Tài liệu API Contract cần đồng bộ mã kết quả với triển khai hiện tại (`THANH_CONG`/`THAT_BAI`, `failure_reason`) nếu còn ghi `WON`/`LOST`, `loss_reason`.
-- Báo cáo phễu bán và tính năng phụ sẽ tiếp tục theo phạm vi/sprint sau nếu chưa triển khai.
-- Không đưa mật khẩu PostgreSQL hoặc file `.env` thật vào GitHub.
+Ghi nhận node --version, npm --version, psql --version; chụp /health, đăng nhập, tạo/chuyển/ghi kết quả, phễu/lịch sử; chạy seed lần hai và kiểm tra số bản ghi. Ghi PASS/FAIL thật và lỗi đã xử lý. Chỉ tạo tag v0.2 sau khi commit bản cuối và kiểm tra nội dung repo public.
