@@ -3,10 +3,11 @@ import {
   getOpportunityById,
   updateOpportunityStage
 } from '../api/opportunities.api';
+import OpportunityReport from '../components/OpportunityReport';
 import DataState from '../components/DataState';
 import OpportunityResult from '../components/OpportunityResult';
 
-export default function OpportunityDetailPage({ id, onBack }) {
+export default function OpportunityDetailPage({ id, onBack, role }) {
   const [opportunity, setOpportunity] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -110,7 +111,7 @@ export default function OpportunityDetailPage({ id, onBack }) {
               <strong>Lý do thất bại:</strong>{' '}
               {opportunity.failure_reason ?? 'Không có'}
             </p>
-            <div className="stage-transition">
+            {role === 'SALES' && <div className="stage-transition">
               <h3>Chuyển giai đoạn</h3>
 
               <p>
@@ -137,11 +138,12 @@ export default function OpportunityDetailPage({ id, onBack }) {
                   {stageError}
                 </p>
               )}
-            </div>
-            <OpportunityResult
+            </div>}
+            {role === 'SALES' && <OpportunityResult
               opportunity={opportunity}
               onUpdated={() => setRetry(n => n + 1)}
-            />
+            />}
+            <OpportunityReport id={id} refresh={retry} />
           </div>
         )}
       </DataState>

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { request } from '../api/client';
 import { createOpportunity } from '../api/opportunities.api';
 
 export default function CreateOpportunityPage({
@@ -6,15 +7,29 @@ export default function CreateOpportunityPage({
   onBack
 }) {
   const [form, setForm] = useState({
-    customer_id: '1',
-    product_id: '1',
-    owner_id: '1',
+    customer_id: '',
+    product_id: '',
     need_desc: '',
     expected_value: '',
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const [references, setReferences] = useState({ customers: [], products: [] });
+  const [referenceLoading, setReferenceLoading] = useState(true);
+  const [referenceError, setReferenceError] = useState('');
+  const [retry, setRetry] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    setReferenceLoading(true); setReferenceError('');
+    request('/api/opportunities/references')
+      .then(data => { if (active) setReferences(data); })
+      .catch(err => { if (active) setReferenceError(err.message); })
+      .finally(() => { if (active) setReferenceLoading(false); });
+    return () => { active = false; };
+  }, [retry]);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -51,7 +66,6 @@ export default function CreateOpportunityPage({
       const data = await createOpportunity({
         customer_id: Number(form.customer_id),
         product_id: Number(form.product_id),
-        owner_id: Number(form.owner_id),
         need_desc: form.need_desc.trim(),
         expected_value: Number(form.expected_value),
       });
@@ -73,40 +87,22 @@ export default function CreateOpportunityPage({
       <h2>Tạo cơ hội bán hàng</h2>
 
       <form onSubmit={handleSubmit}>
+        {referenceLoading && <p>Đang tải khách hàng và sản phẩm...</p>}
+        {referenceError && <p role="alert">{referenceError} <button type="button" onClick={() => setRetry(n => n + 1)}>Thử lại</button></p>}
+        {!referenceLoading && !referenceError && (!references.customers.length || !references.products.length) && <p>Chưa có đủ khách hàng hoặc sản phẩm. Cần nạp dữ liệu mẫu.</p>}
         <div>
-          <label>Mã khách hàng</label>
-          <input
-            type="number"
-            name="customer_id"
-            min="1"
-            required
-            value={form.customer_id}
-            onChange={handleChange}
-          />
+          <label htmlFor="customer_id">Khách hàng</label>
+          <select id="customer_id" name="customer_id" required value={form.customer_id} onChange={handleChange} disabled={referenceLoading}>
+            <option value="">-- Chọn khách hàng --</option>
+            {references.customers.map(c => <option key={c.customer_id} value={c.customer_id}>{c.full_name} (KH{c.customer_id})</option>)}
+          </select>
         </div>
-
         <div>
-          <label>Mã sản phẩm</label>
-          <input
-            type="number"
-            name="product_id"
-            min="1"
-            required
-            value={form.product_id}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div>
-          <label>Mã nhân viên phụ trách</label>
-          <input
-            type="number"
-            name="owner_id"
-            min="1"
-            required
-            value={form.owner_id}
-            onChange={handleChange}
-          />
+          <label htmlFor="product_id">Sản phẩm</label>
+          <select id="product_id" name="product_id" required value={form.product_id} onChange={handleChange} disabled={referenceLoading}>
+            <option value="">-- Chọn sản phẩm --</option>
+            {references.products.map(product => <option key={product.product_id} value={product.product_id}>{product.product_name} — {product.product_code}</option>)}
+          </select>
         </div>
 
         <div>
@@ -139,7 +135,7 @@ export default function CreateOpportunityPage({
           </p>
         )}
 
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading || referenceLoading || !!referenceError || !form.customer_id || !form.product_id}>
           {loading ? 'Đang lưu...' : 'Lưu cơ hội'}
         </button>
       </form>
