@@ -103,3 +103,35 @@ Ngày cập nhật: 17/10/2026
 - Quyết định theo mẫu người dùng: thêm helper updateOpportunityResult gửi PATCH với result/failure_reason; tạo OpportunityResult và đặt sau khối chuyển giai đoạn, bên trong dữ liệu chi tiết và DataState; bổ sung CSS opportunity-result.
 - Component ẩn khi chưa CHOT; ở CHOT và result = null thì hiện form, bắt buộc lý do không rỗng khi THAT_BAI, gửi null khi THANH_CONG. Đã có kết quả thì chỉ hiển thị. Lưu thành công gọi onUpdated để tải lại chi tiết; khi đang lưu vô hiệu hóa nút và hiển thị lỗi nếu có.
 - Kiểm chứng: ESLint cho ba file JavaScript thay đổi và npm run build đạt; chưa kiểm thử hiển thị, PATCH thật hoặc xác nhận cơ hội số 1. Giới hạn validation 500 ký tự và khác biệt hợp đồng tại TD-14 vẫn còn.
+
+### Bổ sung API CRUD sản phẩm trong BT2
+
+- Ngày cập nhật: 01/11/2026.
+- Thiết kế BT1 sử dụng sản phẩm dưới dạng dữ liệu tham chiếu có sẵn.
+- BT2 bổ sung API thêm, xem danh sách/chi tiết, sửa và xóa mềm
+  sản phẩm để đáp ứng yêu cầu thực thể thứ hai có đủ CRUD.
+- Sử dụng bảng product hiện có; xóa mềm bằng is_active = false,
+  giữ bản ghi để bảo toàn liên kết với cơ hội bán hàng cũ.
+- Mã nguồn được tách thành Route, Service và Repository.
+- Chưa bổ sung màn hình quản lý sản phẩm.
+- Bổ sung 6 kiểm thử Service với Repository giả lập.
+- Kết quả chạy npm test trên máy: 30/30 PASS, 0 FAIL.
+- API sản phẩm chưa được tích hợp đăng nhập/phân quyền.
+
+
+## Cập nhật 01/11/2026 — Hoàn thiện quyền thao tác L3
+- Thay đổi: xóa/chuyển giai đoạn/ghi kết quả nhận tài khoản xác thực; chỉ SALES thao tác cơ hội phụ trách, SQL giới hạn owner và store. changed_by lấy từ tài khoản xác thực. Xóa cơ hội có lịch sử bị FK chặn và trả 409 OPPORTUNITY_HAS_HISTORY.
+- Vì sao: tránh vượt quyền qua gọi API trực tiếp; truy vết FR5, FR6, QT-14.
+- Ảnh hưởng: 3 lớp Backend, test nghiệp vụ và giao diện đăng nhập/token; form tạo bỏ owner_id. Không thêm quản lý tài khoản.
+- Kiểm chứng: 39/39 test tự động PASS với repository/kết nối giả lập; chưa chạy PostgreSQL thật hoặc kiểm thử trình duyệt. Build tại môi trường Linux bị chặn bởi binding native Windows trong ZIP; cần npm run build trên máy sinh viên.
+
+
+## 01/11/2026 — Chọn dữ liệu tham chiếu
+Theo yêu cầu sinh viên: seed 10 khách hàng mô phỏng và 8 sản phẩm; form tạo chọn tên qua GET /api/opportunities/references có xác thực, không trả số điện thoại. Không thêm CRUD khách hàng. AI soạn code; kiểm chứng bằng unit test, build và API PGlite; cần xác nhận trên máy sinh viên.
+
+
+## 01/11/2026 — Phễu và lịch sử (FR7, FR9)
+- Phễu chỉ cho MANAGER, nhóm theo stage hiện tại trong cửa hàng; trả đủ bốn stage, kể cả 0.
+- Lịch sử kiểm tra quyền xem cơ hội, sắp thời gian và history_id tăng dần. Thêm bảng hiển thị với loading/empty/error.
+- Giao diện quản lý ẩn thao tác chuyển giai đoạn/ghi kết quả, Backend vẫn kiểm tra quyền.
+- AI soạn code và test; kiểm chứng tự động và API PGlite, chưa kiểm thử trình duyệt/PostgreSQL 16 trên máy sinh viên.

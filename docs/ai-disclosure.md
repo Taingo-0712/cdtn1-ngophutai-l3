@@ -151,3 +151,31 @@
 * **Chữ ký / Họ tên sinh viên:** Ngô Phú Tài
 * **Ngày khai báo:** 29/09/2026
 * **Ngày bổ sung khai báo BT1:** 10/10/2026
+
+
+## Cập nhật 01/11/2026 — Hoàn thiện quyền thao tác L3
+- Thay đổi: xóa/chuyển giai đoạn/ghi kết quả nhận tài khoản xác thực; chỉ SALES thao tác cơ hội phụ trách, SQL giới hạn owner và store. changed_by lấy từ tài khoản xác thực. Xóa cơ hội có lịch sử bị FK chặn và trả 409 OPPORTUNITY_HAS_HISTORY.
+- Vì sao: tránh vượt quyền qua gọi API trực tiếp; truy vết FR5, FR6, QT-14.
+- Ảnh hưởng: 3 lớp Backend, test nghiệp vụ và giao diện đăng nhập/token; form tạo bỏ owner_id. Không thêm quản lý tài khoản.
+- Kiểm chứng: 39/39 test tự động PASS với repository/kết nối giả lập; chưa chạy PostgreSQL thật hoặc kiểm thử trình duyệt. Build tại môi trường Linux bị chặn bởi binding native Windows trong ZIP; cần npm run build trên máy sinh viên.
+
+
+## 01/11/2026 — Chọn dữ liệu tham chiếu
+Theo yêu cầu sinh viên: seed 10 khách hàng mô phỏng và 8 sản phẩm; form tạo chọn tên qua GET /api/opportunities/references có xác thực, không trả số điện thoại. Không thêm CRUD khách hàng. AI soạn code; kiểm chứng bằng unit test, build và API PGlite; cần xác nhận trên máy sinh viên.
+
+
+## 01/11/2026 — Phễu và lịch sử (FR7, FR9)
+- Phễu chỉ cho MANAGER, nhóm theo stage hiện tại trong cửa hàng; trả đủ bốn stage, kể cả 0.
+- Lịch sử kiểm tra quyền xem cơ hội, sắp thời gian và history_id tăng dần. Thêm bảng hiển thị với loading/empty/error.
+- Giao diện quản lý ẩn thao tác chuyển giai đoạn/ghi kết quả, Backend vẫn kiểm tra quyền.
+- AI soạn code và test; kiểm chứng tự động và API PGlite, chưa kiểm thử trình duyệt/PostgreSQL 16 trên máy sinh viên.
+
+
+## Khai báo bổ sung khi chốt BT2 (01/11/2026)
+
+| Công cụ | Nội dung hỗ trợ | File/phần áp dụng | Cách kiểm chứng và giới hạn |
+|---|---|---|---|
+| ChatGPT/Codex | Soạn và sửa xác thực, quyền thao tác, tham chiếu, phễu, lịch sử và giao diện | src, frontend/src, tests | Môi trường AI chạy 44 unit test PASS, build PASS; 38 kiểm tra HTTP trên PGlite PASS. Sinh viên đã gửi kết quả 39 test PASS của phiên bản trước; cần chạy lại bản 44 test trên máy. |
+| ChatGPT/Codex | Viết README, cấu hình mẫu, checklist nộp | README.md, .env.example, docs/checklist-nop-bt2.md | Đối chiếu tên script, migration 001–008, seed và route trong mã hiện hành. Chưa xác nhận clone sạch trên PostgreSQL 16/Windows. |
+
+Sinh viên cần đọc hiểu mã, thực hiện kiểm tra trên máy và cập nhật kết quả thật trước khi nộp. Kiểm thử PGlite không thay cho minh chứng PostgreSQL 16; không sử dụng ảnh minh họa làm ảnh chạy thật.
