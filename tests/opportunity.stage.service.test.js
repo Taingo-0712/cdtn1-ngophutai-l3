@@ -1,3 +1,4 @@
+const user = { user_id: 7, store_id: 1, role: "SALES" };
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const service = require("../src/services/opportunity.service");
@@ -13,7 +14,7 @@ function stubRepository(t, existing) {
       delete repository.updateStage;
     }
   });
-  const getById = t.mock.method(repository, "getById", async () => existing);
+  const getById = t.mock.method(repository, "getByIdForUser", async () => existing);
   const updateStage = t.mock.fn(async (id, stage) => ({ opportunity_id: id, stage }));
   repository.updateStage = updateStage;
   return { getById, updateStage };
@@ -27,13 +28,13 @@ for (const [from, to] of [
 ]) {
   test(`Cho phep ${from} -> ${to}`, async (t) => {
     const mocks = stubRepository(t, { opportunity_id: 1, stage: from });
-    assert.deepEqual(await service.updateOpportunityStage(1, to), {
+    assert.deepEqual(await service.updateOpportunityStage(1, to, user), {
       opportunity_id: 1,
       stage: to
     });
-    assert.deepEqual(mocks.getById.mock.calls[0].arguments, [1]);
+    assert.deepEqual(mocks.getById.mock.calls[0].arguments, [1, user]);
     assert.equal(mocks.updateStage.mock.callCount(), 1);
-    assert.deepEqual(mocks.updateStage.mock.calls[0].arguments, [1, to]);
+    assert.deepEqual(mocks.updateStage.mock.calls[0].arguments, [1, to, user]);
   });
 }
 
@@ -46,7 +47,7 @@ for (const [from, to] of [
 ]) {
   test(`Tu choi ${from} -> ${to} va khong ghi du lieu`, async (t) => {
     const { updateStage } = stubRepository(t, { opportunity_id: 1, stage: from });
-    await assert.rejects(() => service.updateOpportunityStage(1, to), {
+    await assert.rejects(() => service.updateOpportunityStage(1, to, user), {
       message: "INVALID_STAGE_TRANSITION"
     });
     assert.equal(updateStage.mock.callCount(), 0);
@@ -55,7 +56,7 @@ for (const [from, to] of [
 
 test("Tu choi giai doan ngoai danh muc truoc khi truy van", async (t) => {
   const { getById, updateStage } = stubRepository(t, { stage: "TIEP_CAN" });
-  await assert.rejects(() => service.updateOpportunityStage(1, "UNKNOWN"), {
+  await assert.rejects(() => service.updateOpportunityStage(1, "UNKNOWN", user), {
     message: "INVALID_STAGE"
   });
   assert.equal(getById.mock.callCount(), 0);
@@ -64,7 +65,7 @@ test("Tu choi giai doan ngoai danh muc truoc khi truy van", async (t) => {
 
 test("Tu choi co hoi khong ton tai va khong ghi du lieu", async (t) => {
   const { updateStage } = stubRepository(t, undefined);
-  await assert.rejects(() => service.updateOpportunityStage(999, "TU_VAN"), {
+  await assert.rejects(() => service.updateOpportunityStage(999, "TU_VAN", user), {
     message: "OPPORTUNITY_NOT_FOUND"
   });
   assert.equal(updateStage.mock.callCount(), 0);

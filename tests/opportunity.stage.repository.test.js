@@ -1,3 +1,4 @@
+const user = { user_id: 7, store_id: 1, role: "SALES" };
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const pool = require("../src/db");
@@ -32,12 +33,12 @@ function fakeConnection(t, { stage = "TIEP_CAN", missing = false, failOn } = {})
 // US5/FR5, BR6: chỉ commit sau khi cập nhật và ghi lịch sử thành công.
 test("Khoa co hoi, cap nhat va ghi lich su tren cung ket noi truoc COMMIT", async (t) => {
   const { client, commands, updated, connect } = fakeConnection(t);
-  assert.deepEqual(await repository.updateStage(1, "TU_VAN"), updated);
+  assert.deepEqual(await repository.updateStage(1, "TU_VAN", user), updated);
   assert.equal(connect.mock.callCount(), 1);
   assert.equal(commands.length, 5);
   assert.equal(commands[0].statement, "BEGIN");
   assert.match(commands[1].statement, /SELECT .* FROM opportunity .* FOR UPDATE$/);
-  assert.deepEqual(commands[1].params, [1]);
+  assert.deepEqual(commands[1].params, [1, 7, 1]);
   assert.match(commands[2].statement, /^UPDATE opportunity SET stage = \$1, updated_at = NOW\(\)/);
   assert.deepEqual(commands[2].params, ["TU_VAN", 1]);
   assert.match(commands[3].statement, /^INSERT INTO opportunity_stage_history/);
@@ -52,7 +53,7 @@ for (const [description, failOn] of [
 ]) {
   test(`ROLLBACK va tra ket noi khi loi ${description}`, async (t) => {
     const { client, commands, failure } = fakeConnection(t, { failOn });
-    await assert.rejects(() => repository.updateStage(1, "TU_VAN"), failure);
+    await assert.rejects(() => repository.updateStage(1, "TU_VAN", user), failure);
     assert.equal(commands.at(-1).statement, "ROLLBACK");
     assert.equal(commands.some(({ statement }) => statement === "COMMIT"), false);
     if (description === "cap nhat giai doan") {
@@ -64,7 +65,7 @@ for (const [description, failOn] of [
 
 test("Co hoi khong ton tai sau khi khoa: ROLLBACK va khong ghi du lieu", async (t) => {
   const { client, commands } = fakeConnection(t, { missing: true });
-  await assert.rejects(() => repository.updateStage(1, "TU_VAN"), {
+  await assert.rejects(() => repository.updateStage(1, "TU_VAN", user), {
     message: "OPPORTUNITY_NOT_FOUND"
   });
   assert.equal(commands.length, 3);
@@ -74,7 +75,7 @@ test("Co hoi khong ton tai sau khi khoa: ROLLBACK va khong ghi du lieu", async (
 
 test("Kiem tra lai stage da khoa: tu choi yeu cau lap ma khong tao lich su", async (t) => {
   const { client, commands } = fakeConnection(t, { stage: "TU_VAN" });
-  await assert.rejects(() => repository.updateStage(1, "TU_VAN"), {
+  await assert.rejects(() => repository.updateStage(1, "TU_VAN", user), {
     message: "INVALID_STAGE_TRANSITION"
   });
   assert.equal(commands.length, 3);

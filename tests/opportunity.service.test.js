@@ -19,6 +19,10 @@ test("Khong cho phep tao co hoi khi expected_value < 0", async () => {
         owner_id: 1,
         need_desc: "Khach hang quan tam san pham",
         expected_value: -1000
+      }, {
+        user_id: "1",
+        store_id: "1",
+        role: "SALES"
       }),
     {
       message: "INVALID_EXPECTED_VALUE"
