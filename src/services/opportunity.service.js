@@ -1,11 +1,30 @@
 const opportunityRepository = require("../repositories/opportunity.repository");
 
-async function getAllOpportunities() {
-  return await opportunityRepository.getAll();
+async function getAllOpportunities(user) {
+  if (
+    !user ||
+    !user.user_id ||
+    !user.store_id ||
+    !["SALES", "MANAGER"].includes(user.role)
+  ) {
+    throw new Error("FORBIDDEN");
+  }
+
+  return await opportunityRepository.getAll(user);
 }
 
-async function getOpportunityById(id) {
-  const opportunity = await opportunityRepository.getById(id);
+async function getOpportunityById(id, user) {
+  if (
+    !user ||
+    !user.user_id ||
+    !user.store_id ||
+    !["SALES", "MANAGER"].includes(user.role)
+  ) {
+    throw new Error("FORBIDDEN");
+  }
+
+  const opportunity =
+    await opportunityRepository.getByIdForUser(id, user);
 
   if (!opportunity) {
     throw new Error("OPPORTUNITY_NOT_FOUND");
@@ -14,26 +33,38 @@ async function getOpportunityById(id) {
   return opportunity;
 }
 
-async function createOpportunity(data) {
+async function createOpportunity(data, user) {
+  if (!user || user.role !== "SALES") {
+    throw new Error("FORBIDDEN");
+  }
+
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error("INVALID_OPPORTUNITY_DATA");
+  }
+
   const {
     customer_id,
     product_id,
-    owner_id,
     need_desc,
     expected_value
   } = data;
 
-  if (!customer_id || !product_id || !owner_id) {
+  if (!customer_id || !product_id) {
     throw new Error("MISSING_REQUIRED_FIELDS");
   }
 
-  if (!need_desc || need_desc.trim().length === 0) {
+  if (
+    typeof need_desc !== "string" ||
+    need_desc.trim().length === 0 ||
+    need_desc.trim().length > 500
+  ) {
     throw new Error("INVALID_NEED_DESC");
   }
 
   if (
-    expected_value === undefined ||
-    expected_value === null ||
+    !["number", "string"].includes(typeof expected_value) ||
+    String(expected_value).trim() === "" ||
+    !Number.isFinite(Number(expected_value)) ||
     Number(expected_value) < 0
   ) {
     throw new Error("INVALID_EXPECTED_VALUE");
@@ -42,54 +73,75 @@ async function createOpportunity(data) {
   return await opportunityRepository.create({
     customer_id,
     product_id,
-    owner_id,
+    owner_id: user.user_id,
     need_desc: need_desc.trim(),
     expected_value
   });
 }
 
-async function updateOpportunity(id, data) {
-  const existing = await opportunityRepository.getById(id);
+async function updateOpportunity(id, data, user) {
+  if (!user || user.role !== "SALES") {
+    throw new Error("FORBIDDEN");
+  }
 
-  if (!existing) {
-    throw new Error("OPPORTUNITY_NOT_FOUND");
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error("INVALID_OPPORTUNITY_DATA");
   }
 
   if (
     data.need_desc !== undefined &&
-    data.need_desc.trim().length === 0
+    (
+      typeof data.need_desc !== "string" ||
+      data.need_desc.trim().length === 0 ||
+      data.need_desc.trim().length > 500
+    )
   ) {
     throw new Error("INVALID_NEED_DESC");
   }
 
   if (
     data.expected_value !== undefined &&
-    Number(data.expected_value) < 0
+    (
+      !["number", "string"].includes(typeof data.expected_value) ||
+      String(data.expected_value).trim() === "" ||
+      !Number.isFinite(Number(data.expected_value)) ||
+      Number(data.expected_value) < 0
+    )
   ) {
     throw new Error("INVALID_EXPECTED_VALUE");
   }
 
-  return await opportunityRepository.update(id, {
-    need_desc:
-      data.need_desc !== undefined
-        ? data.need_desc.trim()
-        : undefined,
+  const updated = await opportunityRepository.updateForOwner(
+    id,
+    {
+      need_desc: data.need_desc?.trim(),
+      expected_value: data.expected_value
+    },
+    user
+  );
 
-    expected_value: data.expected_value
-  });
+  if (!updated) {
+    throw new Error("OPPORTUNITY_NOT_FOUND");
+  }
+
+  return updated;
 }
 
-async function deleteOpportunity(id) {
-  const existing = await opportunityRepository.getById(id);
+async function deleteOpportunity(id, user) {
+  if (!user || user.role !== "SALES" || !user.user_id || !user.store_id) throw new Error("FORBIDDEN");
+  const existing = await opportunityRepository.getByIdForUser(id, user);
 
   if (!existing) {
     throw new Error("OPPORTUNITY_NOT_FOUND");
   }
 
-  return await opportunityRepository.remove(id);
+  const removed = await opportunityRepository.remove(id, user);
+  if (!removed) throw new Error("OPPORTUNITY_NOT_FOUND");
+  return removed;
 }
 
-async function updateOpportunityStage(id, newStage) {
+async function updateOpportunityStage(id, newStage, user) {
+  if (!user || user.role !== "SALES" || !user.user_id || !user.store_id) throw new Error("FORBIDDEN");
   const stages = ["TIEP_CAN", "TU_VAN", "BAO_GIA", "CHOT"];
 
   // Kiểm tra giai đoạn mới có hợp lệ không
@@ -98,7 +150,7 @@ async function updateOpportunityStage(id, newStage) {
   }
 
   // Lấy thông tin cơ hội hiện tại
-  const existing = await opportunityRepository.getById(id);
+  const existing = await opportunityRepository.getByIdForUser(id, user);
 
   if (!existing) {
     throw new Error("OPPORTUNITY_NOT_FOUND");
@@ -113,10 +165,11 @@ async function updateOpportunityStage(id, newStage) {
   }
 
   // Gọi Repository cập nhật PostgreSQL
-  return await opportunityRepository.updateStage(id, newStage);
+  return await opportunityRepository.updateStage(id, newStage, user);
 }
 
-async function updateOpportunityResult(id, result, failureReason) {
+async function updateOpportunityResult(id, result, failureReason, user) {
+  if (!user || user.role !== "SALES" || !user.user_id || !user.store_id) throw new Error("FORBIDDEN");
   // 1. Kiểm tra kết quả có hợp lệ không
   const validResults = ["THANH_CONG", "THAT_BAI"];
 
@@ -125,7 +178,7 @@ async function updateOpportunityResult(id, result, failureReason) {
   }
 
   // 2. Kiểm tra cơ hội có tồn tại không
-  const existing = await opportunityRepository.getById(id);
+  const existing = await opportunityRepository.getByIdForUser(id, user);
 
   if (!existing) {
     throw new Error("OPPORTUNITY_NOT_FOUND");
@@ -145,7 +198,7 @@ async function updateOpportunityResult(id, result, failureReason) {
   if (
     result === "THAT_BAI" &&
     (typeof failureReason !== "string" ||
-      failureReason.trim().length === 0)
+      failureReason.trim().length === 0 || failureReason.trim().length > 500)
   ) {
     throw new Error("FAILURE_REASON_REQUIRED");
   }
@@ -158,7 +211,8 @@ async function updateOpportunityResult(id, result, failureReason) {
   const updated = await opportunityRepository.updateResult(
     id,
     result,
-    normalizedReason
+    normalizedReason,
+    user
   );
 
   // 8. Xử lý trường hợp dữ liệu thay đổi đồng thời
@@ -169,7 +223,28 @@ async function updateOpportunityResult(id, result, failureReason) {
   return updated;
 }
 
+async function getOpportunityReferences(user) {
+  if (!user || !["SALES", "MANAGER"].includes(user.role)) throw new Error("FORBIDDEN");
+  return opportunityRepository.getReferences();
+}
+
+async function getFunnel(user) {
+  if (!user || user.role !== 'MANAGER' || !user.store_id) throw new Error('FORBIDDEN');
+  const rows = await opportunityRepository.getFunnel(user.store_id);
+  return ['TIEP_CAN', 'TU_VAN', 'BAO_GIA', 'CHOT'].map(stage => ({
+    stage, count: Number(rows.find(row => row.stage === stage)?.count || 0)
+  }));
+}
+
+async function getHistory(id, user) {
+  await getOpportunityById(id, user);
+  return opportunityRepository.getHistory(id, user);
+}
+
 module.exports = {
+  getFunnel,
+  getHistory,
+  getOpportunityReferences,
   getAllOpportunities,
   getOpportunityById,
   createOpportunity,
