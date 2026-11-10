@@ -137,27 +137,63 @@ Ngày cập nhật: 17/10/2026
 
 ## Sau phản hồi Bài tập 2
 
-### Bổ sung 10/11/2026 — Xác thực và phân quyền API sản phẩm
-- Theo yêu cầu người dùng, dùng authenticate cho toàn bộ router sản phẩm; thêm requireProductManager trước ba route POST/PATCH/DELETE. SALES và MANAGER đã xác thực đều đọc được; chỉ MANAGER được ghi. Đây là bảo vệ CRUD sản phẩm đã có, không bổ sung chức năng nghiệp vụ L3 hoặc thay mã FR.
-- Kiểm chứng: node --check src/routes/product.routes.js PASS; npm.cmd test PASS 60/60. Test HTTP mới dùng xác thực/service giả lập, kiểm tra 20 trường hợp trên 5 route: thiếu token hoặc token sai trả 401, SALES ghi trả 403, MANAGER đi tiếp vào service; yêu cầu bị chặn không gọi service. Chưa kiểm thử token thật/PostgreSQL thật.
+Ngày tổng hợp 10/11/2026. Các mục TD-17 đến TD-20 ghi nhận phản hồi của giảng viên. Các mục TD-21 đến TD-23 ghi lại những cải tiến bổ sung trong quá trình hoàn thiện.
 
-### Bổ sung 10/11/2026 — FR8/US8 lọc giai đoạn ở backend
-- Theo mẫu người dùng: repository getAll(user, stage = null) thêm AND ($4::varchar IS NULL OR o.stage = $4); giữ nguyên điều kiện quyền và JOIN. Service kiểm tra 4 mã TIEP_CAN/TU_VAN/BAO_GIA/CHOT, chỉ undefined được hiểu là không lọc; stage sai/rỗng trả INVALID_STAGE trước truy vấn. GET danh sách truyền req.query.stage, ánh xạ lỗi này sang HTTP 400. Tiếp tục che số điện thoại theo vai trò.
-- Khác biệt API contract: tài liệu dùng CONTACT/CONSULTING/QUOTATION/CLOSED; bước này dùng các mã tiếng Việt hiện có trong code/PostgreSQL theo chỉ định người dùng, không đổi enum hoặc hợp đồng cũ.
-- node --check 3 file và git diff --check PASS; chưa chạy npm test theo yêu cầu, chưa kiểm chứng SQL/HTTP thật. Nối React và cập nhật/bổ sung test FR8 ở bước sau (TC21–TC23); không coi FR8 đã hoàn tất.
+### TD-17 — Hoàn thiện màn hình quản lý và thao tác sửa sản phẩm
 
-### Bổ sung 10/11/2026 — Dữ liệu đọc FR2/FR3
-- Bước 2–3 theo mẫu được người dùng cung cấp: FR2 đặt điện thoại trong thẻ small dưới tên khách hàng, cột Sản phẩm ngay sau Khách hàng và trước Nhu cầu; bổ sung emptyMessage cho DataState, mặc định "Không có dữ liệu để hiển thị.", danh sách dùng "Chưa có cơ hội bán hàng.". FR3 thay mã khách hàng/sản phẩm bằng tên và điện thoại; client dịch OPPORTUNITY_NOT_FOUND/UNAUTHENTICATED sang tiếng Việt. Không đổi mã HTTP hoặc phân quyền. Build, ESLint 4 file và 4 kiểm tra client giả lập PASS; chưa kiểm thử trình duyệt.
-- Theo yêu cầu người dùng: JOIN customer/product trong getAll và getByIdForUser, trả customer_name, product_name, customer_phone; giữ nguyên WHERE và mảng tham số phân quyền (QT-14).
-- Service che số điện thoại trước khi trả danh sách/chi tiết cho SALES: giữ 3 số đầu/cuối nếu dài từ 8 ký tự, che toàn bộ số ngắn hơn; MANAGER xem đầy đủ (QT-15). React hiển thị tên khách hàng, sản phẩm và số điện thoại do API trả về.
-- Khác biệt với API contract: code hiện trả 404 OPPORTUNITY_NOT_FOUND cho cả ngoài phạm vi và ID không tồn tại, còn hợp đồng mô tả ngoài phạm vi là 403. Giữ nguyên hành vi hiện tại theo yêu cầu bảo toàn lọc quyền; chưa sửa hợp đồng hoặc mở rộng phạm vi.
-- Kiểm chứng: 59/59 test PASS; build PASS; ESLint hai trang sửa PASS. Lint toàn frontend FAIL tại OpportunityReport.jsx và CreateOpportunityPage.jsx do react-hooks/set-state-in-effect có sẵn. Test dùng SQL/params và repository/xác thực giả lập, chưa thực thi SQL trên PostgreSQL thật hoặc kiểm thử trình duyệt. Clone sạch để sau.
+- **Phản hồi của GV** — Sản phẩm chưa có màn hình quản lý và còn thiếu thao tác sửa.
+- **Quyết định** — **SỬA.** Bổ sung màn hình **Quản lý sản phẩm** cho vai trò `MANAGER` và nối thao tác **Sửa** với API cập nhật.
+- **Lý do** — Sản phẩm là thực thể thứ hai của BT2. Người quản lý cần thực hiện được các thao tác với sản phẩm ngay trên giao diện.
+- **Ảnh hưởng** — Quản lý có thể xem danh sách, thêm, sửa và ngừng sử dụng sản phẩm. Form sửa điền sẵn mã và tên sản phẩm, gọi `PATCH /api/products/:id` khi lưu rồi tải lại danh sách. Khi ngừng sử dụng, giao diện yêu cầu xác nhận và hệ thống xóa mềm để bảo toàn tham chiếu từ cơ hội cũ.
+- **Minh chứng** — [Màn hình quản lý](<End-to-End/A3. Quản lí sản phẩm.png>), [biểu mẫu sửa](<End-to-End/A6. Sửa sản phẩm.png>), [kết quả sau khi sửa](<End-to-End/A7. Sản phẩm sau khi sửa.png>) và [xác nhận ngừng kinh doanh](<End-to-End/A8. Ngừng kinh doanh sản phẩm.png>).
 
-Theo yêu cầu sinh viên: seed 10 khách hàng mô phỏng và 8 sản phẩm; form tạo chọn tên qua GET /api/opportunities/references có xác thực, không trả số điện thoại. Không thêm CRUD khách hàng. AI soạn code; kiểm chứng bằng unit test, build và API PGlite; cần xác nhận trên máy sinh viên.
+### TD-18 — Hoàn thiện bộ lọc theo giai đoạn (FR8/US8)
 
+- **Phản hồi của GV** — Lọc theo giai đoạn (FR8) chưa làm.
+- **Quyết định** — **SỬA.** Hiện thực bộ lọc trên trang danh sách và xử lý tham số `stage` ở backend.
+- **Lý do** — Nhân viên và quản lý cần xem các cơ hội ở một giai đoạn cụ thể trong phạm vi được phép.
+- **Ảnh hưởng** — React gửi `GET /api/opportunities?stage=...` khi chọn **Tiếp cận**, **Tư vấn**, **Báo giá** hoặc **Chốt**, và bỏ tham số khi chọn **Tất cả**. Backend lọc theo giai đoạn trong truy vấn có phân quyền. Giá trị sai, rỗng hoặc lặp trả HTTP `400 INVALID_STAGE`. Hệ thống tiếp tục che số điện thoại theo vai trò.
+- **Điểm cần đối chiếu** — API hiện dùng `TIEP_CAN`, `TU_VAN`, `BAO_GIA`, `CHOT`. Hợp đồng API BT1 đang ghi `CONTACT`, `CONSULTING`, `QUOTATION`, `CLOSED`. [Hợp đồng API](api-contract.md).
+- **Kiểm chứng** — Sau khi nối React, bộ kiểm thử tại thời điểm đó đạt 63/63, build frontend và kiểm tra ESLint trên hai tệp đã sửa đều đạt. [Các ca FR8](../tests/opportunity.read.test.js) kiểm tra lọc trong phạm vi quyền, bỏ lọc và tham số sai theo TC21–TC23, với dữ liệu hoặc kết nối giả lập.
 
+### TD-19 — Kiểm chứng dựng lại từ bản clone sạch
 
+- **Phản hồi của GV** — Chưa thử clone sạch.
+- **Quyết định** — **BỔ SUNG KIỂM CHỨNG.** Dựng lại dự án theo README trong thư mục mới và dùng database thử riêng.
+- **Lý do** — Phép thử xác định người clone repo có thể cài đặt và chạy dự án bằng các bước đã ghi trong README, đồng thời kiểm tra việc nạp dữ liệu mẫu lần hai.
+- **Ảnh hưởng** — README đã có quy trình clone, cài thư viện, chạy migration và seed, đối chiếu số bản ghi sau lần seed thứ hai, chạy test, build frontend và thử ứng dụng. Sau khi chạy, ghi mã commit và kết quả thực tế.
+- **Trạng thái** — **Đã có hướng dẫn. Phép thử dựng lại độc lập chưa thực hiện.** [Hướng dẫn trong README](../README.md#phép-thử-dựng-lại-độc-lập).
 
-## Bổ sung 10/11/2026 — React FR8/US8
-- Theo yêu cầu người dùng: getOpportunities(stage = '') gửi stage qua encodeURIComponent, bỏ query khi chọn Tất cả. Trang danh sách thêm stageFilter, tải lại theo [retry, stageFilter]; ô chọn Tất cả/Tiếp cận/Tư vấn/Báo giá/Chốt nằm trước DataState để sử dụng được khi rỗng/lỗi. Giữ nguyên quyền và che số ở backend.
-- Cập nhật test tham số SQL, bổ sung kiểm tra lọc/bỏ lọc và stage sai/rỗng/query lặp (TC21–TC23). Kết quả mới: 63/63 test PASS; build và ESLint hai file sửa PASS; 4/4 kiểm tra URL giả lập PASS. Chưa kiểm thử trình duyệt/PostgreSQL thật; kết quả này cập nhật bước backend trước đó vốn chưa chạy test.
+### TD-20 — Ghi nhận kết quả kiểm chứng tại Bảng 4.2
+
+- **Phản hồi của GV** — Mục kiểm chứng (Bảng 4.2) đạt đủ các mục chung và mục theo track.
+- **Quyết định** — **GHI NHẬN.** Lưu kết quả đánh giá của giảng viên cho phần kiểm chứng BT2.
+- **Lý do** — Đây là kết quả đánh giá các mục chung và các mục riêng của track SE.
+- **Ảnh hưởng** — Ghi trạng thái **đạt theo phản hồi của giảng viên**. Tiến độ tự kiểm chứng từ bản clone được theo dõi riêng ở TD-19.
+
+### TD-21 — Bổ sung xác thực và phân quyền cho API sản phẩm
+
+- **Căn cứ** — Bổ sung kỹ thuật để hỗ trợ màn hình quản lý sản phẩm ở TD-17.
+- **Quyết định** — **BỔ SUNG.** Áp dụng `authenticate` cho toàn bộ API sản phẩm và `requireProductManager` cho các thao tác thêm, sửa và ngừng sử dụng.
+- **Lý do** — Quyền thay đổi sản phẩm cần được kiểm tra ở backend, kể cả khi người dùng gọi API trực tiếp.
+- **Ảnh hưởng** — `SALES` và `MANAGER` đã xác thực đều đọc được dữ liệu sản phẩm. Chỉ `MANAGER` được gọi các thao tác `POST`, `PATCH` và `DELETE`. Thiếu hoặc sai token trả `401`. Nhân viên gọi thao tác ghi trả `403`.
+- **Kiểm chứng** — Tại thời điểm bổ sung, bộ kiểm thử đạt 60/60. [Bộ kiểm thử phân quyền](../tests/product.authorization.test.js) bao phủ 20 trường hợp trên 5 route, dùng xác thực và service giả lập để kiểm tra yêu cầu hợp lệ đi tiếp và yêu cầu bị chặn dừng trước service.
+
+### TD-22 — Cải thiện dữ liệu hiển thị ở danh sách và chi tiết cơ hội (FR2/FR3)
+
+- **Căn cứ** — Cải tiến trong quá trình hoàn thiện FR2/FR3 và áp dụng các quy tắc QT-14, QT-15.
+- **Quyết định** — **SỬA.** Trả và hiển thị tên khách hàng, tên sản phẩm và số điện thoại theo quyền xem của từng vai trò.
+- **Lý do** — Tên giúp người dùng nhận biết khách hàng và sản phẩm trực tiếp. Số điện thoại cần được che ngay trong phản hồi API cho nhân viên.
+- **Ảnh hưởng** — Repository nối dữ liệu từ `customer` và `product` trong truy vấn danh sách và chi tiết, đồng thời áp dụng giới hạn xem theo QT-14. Service che số trước khi trả dữ liệu cho `SALES` theo QT-15. `MANAGER` được xem số đầy đủ trong phạm vi được phép. Giao diện dùng tên thay mã ở trang chi tiết, hiển thị số dưới tên khách hàng ở trang danh sách và báo bằng tiếng Việt khi danh sách rỗng, cơ hội không tìm thấy hoặc phiên đăng nhập hết hạn.
+- **Điểm cần đối chiếu** — API hiện trả `404 OPPORTUNITY_NOT_FOUND` cho cơ hội ngoài phạm vi và cơ hội không tồn tại. Hợp đồng API BT1 mô tả trường hợp ngoài phạm vi bằng `403`. [Hợp đồng API](api-contract.md).
+- **Kiểm chứng** — Tại thời điểm cập nhật, bộ kiểm thử đạt 59/59 với truy vấn, repository hoặc xác thực giả lập. Build và ESLint trên các tệp đã sửa đạt. Lần chạy lint toàn frontend ghi nhận lỗi có sẵn về `react-hooks/set-state-in-effect` tại `OpportunityReport.jsx` và `CreateOpportunityPage.jsx`.
+
+### TD-23 — Bổ sung dữ liệu tham chiếu cho form tạo cơ hội (FR1)
+
+- **Căn cứ** — Cải tiến form tạo cơ hội trong quá trình hoàn thiện FR1.
+- **Quyết định** — **BỔ SUNG.** Nạp dữ liệu mô phỏng và cho phép chọn khách hàng, sản phẩm theo tên trong form.
+- **Lý do** — Người dùng cần nhận biết đúng khách hàng và sản phẩm khi tạo cơ hội mà chỉ cần chọn từ danh sách có sẵn.
+- **Ảnh hưởng** — Bổ sung seed 10 khách hàng mô phỏng và 8 sản phẩm. Form gọi `GET /api/opportunities/references` sau xác thực. API trả các trường cần cho danh sách chọn và loại số điện thoại khỏi phản hồi. Khách hàng tiếp tục được dùng làm dữ liệu tham chiếu của luồng L3.
+- **Kiểm chứng** — Đã kiểm tra bằng bộ kiểm thử tự động, build frontend và API với PGlite ở bước phát triển. Phép dựng lại độc lập được theo dõi tại TD-19.
+
+Các số 59/59, 60/60 và 63/63 là kết quả theo từng mốc cập nhật. Bộ kiểm thử tự động của bản hiện tại đạt 70/70 trên máy phát triển. [Kết quả tổng hợp trong README](../README.md#kiểm-thử-và-build).
