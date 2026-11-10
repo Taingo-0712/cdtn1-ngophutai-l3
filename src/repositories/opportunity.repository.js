@@ -1,20 +1,26 @@
 const pool = require("../db");
 
-async function getAll(user) {
+async function getAll(user, stage = null) {
   const result = await pool.query(
     `
-    SELECT o.*
+    SELECT o.*,
+           c.full_name AS customer_name,
+           p.product_name,
+           c.phone AS customer_phone
     FROM opportunity AS o
     JOIN app_user AS owner
       ON owner.user_id = o.owner_id
+    JOIN customer AS c ON c.customer_id = o.customer_id
+    JOIN product AS p ON p.product_id = o.product_id
     WHERE owner.store_id = $1
       AND (
         $2 = 'MANAGER'
         OR ($2 = 'SALES' AND o.owner_id = $3)
       )
+      AND ($4::varchar IS NULL OR o.stage = $4)
     ORDER BY o.opportunity_id
     `,
-    [user.store_id, user.role, user.user_id]
+    [user.store_id, user.role, user.user_id, stage]
   );
 
   return result.rows;
@@ -47,10 +53,15 @@ async function getById(id) {
 async function getByIdForUser(id, user) {
   const result = await pool.query(
     `
-    SELECT o.*
+    SELECT o.*,
+           c.full_name AS customer_name,
+           p.product_name,
+           c.phone AS customer_phone
     FROM opportunity AS o
     JOIN app_user AS owner
       ON owner.user_id = o.owner_id
+    JOIN customer AS c ON c.customer_id = o.customer_id
+    JOIN product AS p ON p.product_id = o.product_id
     WHERE o.opportunity_id = $1
       AND owner.store_id = $2
       AND (
@@ -246,29 +257,53 @@ async function updateResult(id, result, failureReason, user) {
 }
 
 async function updateForOwner(id, data, user) {
-  const result = await pool.query(
-    `UPDATE opportunity AS o
-     SET need_desc = COALESCE($1, o.need_desc),
-         expected_value = COALESCE($2, o.expected_value),
-         updated_at = NOW()
-     WHERE o.opportunity_id = $3
-       AND o.owner_id = $4
-       AND EXISTS (
-         SELECT 1 FROM app_user u
-         WHERE u.user_id = o.owner_id
-           AND u.store_id = $5
-       )
-     RETURNING o.*`,
-    [
-      data.need_desc ?? null,
-      data.expected_value ?? null,
-      id,
-      user.user_id,
-      user.store_id
-    ]
-  );
+  const client = await pool.connect();
 
-  return result.rows[0];
+  try {
+    await client.query("BEGIN");
+
+    // Ghi kết quả cũng cập nhật dòng này, nên phải đợi giao dịch giữ khóa hoàn tất.
+    const { rows: [current] } = await client.query(
+      `SELECT o.result
+       FROM opportunity AS o
+       JOIN app_user AS owner ON owner.user_id = o.owner_id
+       WHERE o.opportunity_id = $1 AND o.owner_id = $2 AND owner.store_id = $3
+       FOR UPDATE OF o`,
+      [id, user.user_id, user.store_id]
+    );
+
+    if (!current) throw new Error("OPPORTUNITY_NOT_FOUND");
+    if (current.result !== null) throw new Error("OPPORTUNITY_FINALIZED");
+
+    if (data.product_id !== undefined) {
+      const { rows } = await client.query(
+        `SELECT product_id FROM product
+         WHERE product_id = $1 AND is_active = TRUE
+         FOR SHARE`,
+        [data.product_id]
+      );
+      if (!rows.length) throw new Error("INVALID_PRODUCT_ID");
+    }
+
+    const { rows: [updated] } = await client.query(
+      `UPDATE opportunity
+       SET product_id = COALESCE($1, product_id),
+           need_desc = COALESCE($2, need_desc),
+           expected_value = COALESCE($3, expected_value),
+           updated_at = NOW()
+       WHERE opportunity_id = $4
+       RETURNING *`,
+      [data.product_id ?? null, data.need_desc ?? null, data.expected_value ?? null, id]
+    );
+
+    await client.query("COMMIT");
+    return updated;
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 async function getReferences() {

@@ -6,6 +6,7 @@ import {
 import OpportunityReport from '../components/OpportunityReport';
 import DataState from '../components/DataState';
 import OpportunityResult from '../components/OpportunityResult';
+import OpportunityEdit from '../components/OpportunityEdit';
 
 export default function OpportunityDetailPage({ id, onBack, role }) {
   const [opportunity, setOpportunity] = useState(null);
@@ -98,8 +99,9 @@ export default function OpportunityDetailPage({ id, onBack, role }) {
         {opportunity && (
           <div>
             <p><strong>Mã cơ hội:</strong> {opportunity.opportunity_id}</p>
-            <p><strong>Mã khách hàng:</strong> {opportunity.customer_id}</p>
-            <p><strong>Mã sản phẩm:</strong> {opportunity.product_id}</p>
+            <p><strong>Khách hàng:</strong> {opportunity.customer_name}</p>
+            <p><strong>Số điện thoại:</strong> {opportunity.customer_phone}</p>
+            <p><strong>Sản phẩm:</strong> {opportunity.product_name}</p>
             <p><strong>Nhu cầu:</strong> {opportunity.need_desc}</p>
             <p>
               <strong>Giá trị dự kiến:</strong>{' '}
@@ -143,6 +145,14 @@ export default function OpportunityDetailPage({ id, onBack, role }) {
               opportunity={opportunity}
               onUpdated={() => setRetry(n => n + 1)}
             />}
+            {opportunity.result != null && <p>Cơ hội đã có kết quả và đã khóa chỉnh sửa.</p>}
+            {role === 'SALES' && opportunity.result == null && (
+              <OpportunityEdit
+                key={opportunity.opportunity_id}
+                opportunity={opportunity}
+                onUpdated={() => setRetry(n => n + 1)}
+              />
+            )}
             <OpportunityReport id={id} refresh={retry} />
           </div>
         )}

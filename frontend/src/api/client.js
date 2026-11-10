@@ -32,6 +32,14 @@ export async function request(path, options = {}) {
   }
 
   if (!response.ok) {
+    if (data?.message === 'OPPORTUNITY_NOT_FOUND') {
+      throw new Error('Không tìm thấy cơ hội bán hàng.');
+    }
+
+    if (data?.message === 'UNAUTHENTICATED') {
+      throw new Error('Phiên đăng nhập không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại.');
+    }
+
     if (response.status >= 500) {
       throw new Error(
         'Máy chủ đang gặp lỗi hoặc không hoạt động.'

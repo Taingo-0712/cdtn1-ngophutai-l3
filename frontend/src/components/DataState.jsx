@@ -2,6 +2,7 @@ export default function DataState({
   loading,
   error,
   empty,
+  emptyMessage = 'Không có dữ liệu để hiển thị.',
   onRetry,
   children
 }) {
@@ -23,7 +24,7 @@ export default function DataState({
   }
 
   if (empty) {
-    return <p>Không có dữ liệu để hiển thị.</p>;
+    return <p>{emptyMessage}</p>;
   }
 
   return children;

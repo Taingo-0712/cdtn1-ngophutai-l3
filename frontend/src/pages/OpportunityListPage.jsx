@@ -8,6 +8,7 @@ export default function OpportunityListPage({ onViewDetail }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [retry, setRetry] = useState(0);
+  const [stageFilter, setStageFilter] = useState('');
 
   useEffect(() => {
     let active = true;
@@ -17,7 +18,7 @@ export default function OpportunityListPage({ onViewDetail }) {
       setError('');
 
       try {
-        const data = await getOpportunities();
+        const data = await getOpportunities(stageFilter);
 
         if (!Array.isArray(data)) {
           throw new Error('Dữ liệu API không hợp lệ');
@@ -42,16 +43,32 @@ export default function OpportunityListPage({ onViewDetail }) {
     return () => {
       active = false;
     };
-  }, [retry]);
+  }, [retry, stageFilter]);
 
   return (
     <div>
       <h2>Danh sách cơ hội bán hàng</h2>
 
+      <div>
+        <label htmlFor="stage-filter">Lọc theo giai đoạn </label>
+        <select
+          id="stage-filter"
+          value={stageFilter}
+          onChange={event => setStageFilter(event.target.value)}
+        >
+          <option value="">Tất cả giai đoạn</option>
+          <option value="TIEP_CAN">Tiếp cận</option>
+          <option value="TU_VAN">Tư vấn</option>
+          <option value="BAO_GIA">Báo giá</option>
+          <option value="CHOT">Chốt</option>
+        </select>
+      </div>
+
       <DataState
         loading={loading}
         error={error}
         empty={opportunities.length === 0}
+        emptyMessage="Chưa có cơ hội bán hàng."
         onRetry={() => setRetry(n => n + 1)}
       >
         <table border="1" cellPadding="10">
@@ -59,6 +76,7 @@ export default function OpportunityListPage({ onViewDetail }) {
             <tr>
               <th>Mã cơ hội</th>
               <th>Khách hàng</th>
+              <th>Sản phẩm</th>
               <th>Nhu cầu</th>
               <th>Giá trị dự kiến</th>
               <th>Giai đoạn</th>
@@ -70,7 +88,12 @@ export default function OpportunityListPage({ onViewDetail }) {
             {opportunities.map(item => (
               <tr key={item.opportunity_id}>
                 <td>{item.opportunity_id}</td>
-                <td>{item.customer_id}</td>
+                <td>
+                  {item.customer_name}
+                  <br />
+                  <small>{item.customer_phone}</small>
+                </td>
+                <td>{item.product_name}</td>
                 <td>{item.need_desc}</td>
                 <td>
                   {Number(item.expected_value)

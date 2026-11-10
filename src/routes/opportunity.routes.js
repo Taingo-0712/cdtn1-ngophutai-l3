@@ -10,11 +10,16 @@ router.use(authenticate);
 // GET /api/opportunities
 router.get("/", async (req, res) => {
   try {
-    const data =
-      await opportunityService.getAllOpportunities(req.user);
+    const data = await opportunityService.getAllOpportunities(
+      req.user,
+      req.query.stage
+    );
 
     return res.json(data);
   } catch (error) {
+    if (error.message === "INVALID_STAGE") {
+      return res.status(400).json({ message: "INVALID_STAGE" });
+    }
     if (error.message === "FORBIDDEN") return res.status(403).json({ message: "FORBIDDEN" });
     if (["22P02", "22003"].includes(error.code)) return res.status(400).json({ message: "INVALID_DATA" });
     if (error.message === "FORBIDDEN") {
@@ -230,19 +235,17 @@ router.patch("/:id", async (req, res) => {
       return res.status(403).json({ message: "FORBIDDEN" });
     }
 
-    if (error.message === "INVALID_OPPORTUNITY_DATA") {
-      return res.status(400).json({
-        message: "INVALID_OPPORTUNITY_DATA"
-      });
-    }
-
     if (error.message === "OPPORTUNITY_NOT_FOUND") {
       return res.status(404).json({ message: error.message });
     }
 
+    if (error.message === "OPPORTUNITY_FINALIZED") {
+      return res.status(409).json({ message: error.message });
+    }
+
     if (
-      error.message === "INVALID_NEED_DESC" ||
-      error.message === "INVALID_EXPECTED_VALUE"
+      ["INVALID_OPPORTUNITY_DATA", "INVALID_PRODUCT_ID", "INVALID_NEED_DESC", "INVALID_EXPECTED_VALUE"]
+        .includes(error.message)
     ) {
       return res.status(400).json({ message: error.message });
     }

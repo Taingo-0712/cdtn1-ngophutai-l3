@@ -1,6 +1,17 @@
 const opportunityRepository = require("../repositories/opportunity.repository");
 
-async function getAllOpportunities(user) {
+function formatOpportunityPhone(opportunity, role) {
+  const phone = opportunity.customer_phone;
+  if (!phone || role === "MANAGER") return opportunity;
+
+  const masked = phone.length >= 8
+    ? phone.slice(0, 3) + "*".repeat(phone.length - 6) + phone.slice(-3)
+    : "*".repeat(phone.length);
+
+  return { ...opportunity, customer_phone: masked };
+}
+
+async function getAllOpportunities(user, stage) {
   if (
     !user ||
     !user.user_id ||
@@ -10,7 +21,15 @@ async function getAllOpportunities(user) {
     throw new Error("FORBIDDEN");
   }
 
-  return await opportunityRepository.getAll(user);
+  if (
+    stage !== undefined &&
+    !["TIEP_CAN", "TU_VAN", "BAO_GIA", "CHOT"].includes(stage)
+  ) {
+    throw new Error("INVALID_STAGE");
+  }
+
+  const opportunities = await opportunityRepository.getAll(user, stage);
+  return opportunities.map(item => formatOpportunityPhone(item, user.role));
 }
 
 async function getOpportunityById(id, user) {
@@ -30,7 +49,7 @@ async function getOpportunityById(id, user) {
     throw new Error("OPPORTUNITY_NOT_FOUND");
   }
 
-  return opportunity;
+  return formatOpportunityPhone(opportunity, user.role);
 }
 
 async function createOpportunity(data, user) {
@@ -80,7 +99,7 @@ async function createOpportunity(data, user) {
 }
 
 async function updateOpportunity(id, data, user) {
-  if (!user || user.role !== "SALES") {
+  if (!user || user.role !== "SALES" || !user.user_id || !user.store_id) {
     throw new Error("FORBIDDEN");
   }
 
@@ -88,43 +107,56 @@ async function updateOpportunity(id, data, user) {
     throw new Error("INVALID_OPPORTUNITY_DATA");
   }
 
+  const fields = Object.keys(data);
+  const editableFields = ["product_id", "need_desc", "expected_value"];
+  if (!fields.length || fields.some(field => !editableFields.includes(field))) {
+    throw new Error("INVALID_OPPORTUNITY_DATA");
+  }
+
+  const { product_id, need_desc, expected_value } = data;
+  if (Object.hasOwn(data, "product_id")) {
+    const validType = typeof product_id === "string" || Number.isSafeInteger(product_id);
+    if (
+      !validType ||
+      !/^[1-9]\d{0,18}$/.test(String(product_id)) ||
+      BigInt(product_id) > 9223372036854775807n
+    ) {
+      throw new Error("INVALID_PRODUCT_ID");
+    }
+  }
+
   if (
-    data.need_desc !== undefined &&
+    Object.hasOwn(data, "need_desc") &&
     (
-      typeof data.need_desc !== "string" ||
-      data.need_desc.trim().length === 0 ||
-      data.need_desc.trim().length > 500
+      typeof need_desc !== "string" ||
+      !need_desc.trim() ||
+      [...need_desc.trim()].length > 500 ||
+      need_desc.includes("\u0000")
     )
   ) {
     throw new Error("INVALID_NEED_DESC");
   }
 
-  if (
-    data.expected_value !== undefined &&
-    (
-      !["number", "string"].includes(typeof data.expected_value) ||
-      String(data.expected_value).trim() === "" ||
-      !Number.isFinite(Number(data.expected_value)) ||
-      Number(data.expected_value) < 0
-    )
-  ) {
-    throw new Error("INVALID_EXPECTED_VALUE");
+  let normalizedValue;
+  if (Object.hasOwn(data, "expected_value")) {
+    normalizedValue = typeof expected_value === "string" && /^\d+$/.test(expected_value.trim())
+      ? Number(expected_value)
+      : expected_value;
+
+    if (!Number.isSafeInteger(normalizedValue) || normalizedValue < 0 || normalizedValue > 999999999999999) {
+      throw new Error("INVALID_EXPECTED_VALUE");
+    }
   }
 
-  const updated = await opportunityRepository.updateForOwner(
+  return opportunityRepository.updateForOwner(
     id,
     {
-      need_desc: data.need_desc?.trim(),
-      expected_value: data.expected_value
+      product_id,
+      need_desc: need_desc?.trim(),
+      expected_value: normalizedValue
     },
     user
   );
-
-  if (!updated) {
-    throw new Error("OPPORTUNITY_NOT_FOUND");
-  }
-
-  return updated;
 }
 
 async function deleteOpportunity(id, user) {

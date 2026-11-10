@@ -1,7 +1,11 @@
 import { request } from './client';
 
-export function getOpportunities() {
-  return request('/api/opportunities');
+export function getOpportunities(stage = '') {
+  const path = stage
+    ? `/api/opportunities?stage=${encodeURIComponent(stage)}`
+    : '/api/opportunities';
+
+  return request(path);
 }
 
 export function getOpportunityById(id) {
@@ -29,5 +33,12 @@ export function updateOpportunityResult(id, result, failureReason) {
       result,
       failure_reason: failureReason
     })
+  });
+}
+
+export function updateOpportunity(id, data) {
+  return request(`/api/opportunities/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
   });
 }
