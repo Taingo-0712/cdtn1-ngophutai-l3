@@ -1,6 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const productService = require("../services/product.service");
+const { authenticate } = require("../middlewares/auth.middleware");
+
+router.use(authenticate);
+
+function requireProductManager(req, res, next) {
+  if (req.user.role !== "MANAGER") {
+    return res.status(403).json({ message: "FORBIDDEN" });
+  }
+
+  return next();
+}
 
 router.get("/", async (req, res, next) => {
   try {
@@ -20,7 +31,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-router.post("/", async (req, res, next) => {
+router.post("/", requireProductManager, async (req, res, next) => {
   try {
     const product = await productService.createProduct(req.body);
     res.status(201).json(product);
@@ -29,7 +40,7 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-router.patch("/:id", async (req, res, next) => {
+router.patch("/:id", requireProductManager, async (req, res, next) => {
   try {
     const product = await productService.updateProduct(req.params.id, req.body);
     res.json(product);
@@ -38,7 +49,7 @@ router.patch("/:id", async (req, res, next) => {
   }
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", requireProductManager, async (req, res, next) => {
   try {
     const product = await productService.deleteProduct(req.params.id);
     res.json(product);

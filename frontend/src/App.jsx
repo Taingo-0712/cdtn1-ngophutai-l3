@@ -5,6 +5,7 @@ import { useState } from 'react';
 import OpportunityListPage from './pages/OpportunityListPage';
 import OpportunityDetailPage from './pages/OpportunityDetailPage';
 import CreateOpportunityPage from './pages/CreateOpportunityPage';
+import ProductManagementPage from './pages/ProductManagementPage';
 
 function App() {
   const [account, setAccount] = useState(null);
@@ -39,50 +40,79 @@ function App() {
   }
 
   if (!account) return (
-    <main style={{ maxWidth: 420, margin: '60px auto', padding: 24 }}>
-      <h1>Mekong Mobile</h1><h2>Đăng nhập</h2>
-      <form onSubmit={login}>
-        <label>Tên đăng nhập<input required autoComplete="username" value={username} onChange={e => setUsername(e.target.value)} /></label>
-        <label>Mật khẩu<input required type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} /></label>
-        {loginError && <p role="alert">{loginError}</p>}
-        <button disabled={busy}>{busy ? 'Đang đăng nhập...' : 'Đăng nhập'}</button>
-      </form>
+    <main className="login-screen">
+      <div className="login-card">
+        <div className="brand">
+          <span className="brand-mark" aria-hidden="true">MM</span>
+          <div><strong>Mekong Mobile</strong><span>Smart CRM</span></div>
+        </div>
+        <h1>Đăng nhập</h1>
+        <p>Đăng nhập để vào không gian quản lý bán hàng.</p>
+        <form onSubmit={login}>
+          <label>Tên đăng nhập<input required autoComplete="username" value={username} onChange={e => setUsername(e.target.value)} /></label>
+          <label>Mật khẩu<input required type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} /></label>
+          {loginError && <p role="alert">{loginError}</p>}
+          <button disabled={busy}>{busy ? 'Đang đăng nhập...' : 'Đăng nhập'}</button>
+        </form>
+      </div>
     </main>
   );
 
   return (
-    <div style={{ padding: '30px', fontFamily: 'Arial' }}>
-      <h1>Mekong Mobile - Quản lý cơ hội bán hàng</h1>
-      <p>{account.full_name} — {account.role}</p>
-      <button onClick={() => { sessionStorage.removeItem('access_token'); setAccount(null); }}>Đăng xuất</button>
+    <div className="crm-shell">
+      <header className="crm-header">
+        <div className="brand">
+          <span className="brand-mark" aria-hidden="true">MM</span>
+          <div><strong>Mekong Mobile</strong><span>Smart CRM</span></div>
+        </div>
+        <div className="account-bar">
+          <div className="account-name">
+            <strong>{account.full_name}</strong>
+            <span>{account.role === 'MANAGER' ? 'Quản lý cửa hàng' : 'Nhân viên bán hàng'}</span>
+          </div>
+          <button type="button" className="sign-out" onClick={() => { sessionStorage.removeItem('access_token'); setAccount(null); }}>
+            Đăng xuất
+          </button>
+        </div>
+      </header>
 
-      {page === 'list' && account.role === 'MANAGER' && <OpportunityReport />}
-      {page === 'list' && (
-        <>
-          {account.role === 'SALES' && <button onClick={() => setPage('create')}>
-            + Tạo cơ hội mới
-          </button>}
+      <main className="crm-main">
+        <div className="workspace-heading">
+          <div>
+            <p className="workspace-kicker">Không gian bán hàng</p>
+            <h1>Cơ hội bán hàng</h1>
+            {page === 'list' && <p>Theo dõi nhu cầu khách hàng, tiến độ tư vấn và kết quả chốt.</p>}
+          </div>
+          {page === 'list' && account.role === 'SALES' && (
+            <button type="button" onClick={() => setPage('create')}>+ Tạo cơ hội mới</button>
+          )}
+          {page === 'list' && account.role === 'MANAGER' && (
+            <button type="button" onClick={() => setPage('products')}>Quản lý sản phẩm</button>
+          )}
+        </div>
 
-          <OpportunityListPage
-            onViewDetail={viewDetail}
-          />
-        </>
-      )}
-
-      {page === 'detail' && (
-        <OpportunityDetailPage
-          role={account.role}
-          id={selectedId}
-          onBack={showList}
-        />
-      )}
-
-      {page === 'create' && (
-        <CreateOpportunityPage
-          onCreated={viewDetail}
-          onBack={showList}
-        />
-      )}
+        {page === 'list' && account.role === 'MANAGER' && (
+          <div className="crm-panel"><OpportunityReport /></div>
+        )}
+        {page === 'list' && (
+          <div className="crm-panel opportunity-list">
+            <OpportunityListPage onViewDetail={viewDetail} />
+          </div>
+        )}
+        {page === 'products' && account.role === 'MANAGER' && (
+          <div className="crm-panel"><ProductManagementPage onBack={showList} /></div>
+        )}
+        {page === 'detail' && (
+          <div className="crm-panel detail-page">
+            <OpportunityDetailPage role={account.role} id={selectedId} onBack={showList} />
+          </div>
+        )}
+        {page === 'create' && (
+          <div className="crm-panel">
+            <CreateOpportunityPage onCreated={viewDetail} onBack={showList} />
+          </div>
+        )}
+      </main>
     </div>
   );
 }

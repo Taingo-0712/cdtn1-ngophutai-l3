@@ -1,9 +1,18 @@
 :root {
   font-family: 'Segoe UI', Arial, sans-serif;
-  color: #253247;
-  background: #f4f7fb;
+  color: #1b2b3e;
+  background: #f1f5f9;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  line-height: 1.5;
+
+  --surface: #fff;
+  --muted: #47586e;
+  --border: #d7e1ea;
+  --navy: #142842;
+  --accent: #0d695f;
+  --accent-hover: #09544c;
+  --gutter: clamp(16px, 3vw, 56px);
 }
 
 * {
@@ -12,13 +21,12 @@
 
 body {
   margin: 0;
-  min-width: 320px;
   min-height: 100vh;
-  background: #f4f7fb;
 }
 
 button,
 input,
+select,
 textarea {
   font: inherit;
 }
@@ -28,6 +36,11 @@ button {
 }
 
 button:disabled {
-  opacity: 0.6;
+  opacity: 0.58;
   cursor: not-allowed;
+}
+
+:where(button, input, select, textarea):focus-visible {
+  outline: 3px solid #15877b;
+  outline-offset: 3px;
 }
