@@ -58,6 +58,18 @@
 - ZIP duoc cung cap co chua `.env`; file do co the chua thong tin nhay cam. **Khong dua `.env` vao GitHub, khong gui lai file do cho AI va khong ghi gia tri bi mat vao bao cao**. `.gitignore` da co quy tac bo qua `.env`, nhung ZIP khong tu dong bo qua file nay.
 
 ## 8. Cach chuyen ngu canh qua lai giua ChatGPT va Codex
+### Trang thai duoc xac minh — 10/11/2026
+- Cập nhật sau bước React FR8: getOpportunities(stage) gửi query đã encode, bỏ query khi chọn Tất cả; trang danh sách dùng stageFilter và dependency [retry, stageFilter], ô chọn nằm trước DataState. Đã cập nhật tham số SQL trong test, bổ sung ca 4 stage/bỏ lọc/sai/rỗng/query lặp, bảo toàn danh tính và che điện thoại.
+- Kết quả mới: npm.cmd test PASS 63/63; build frontend PASS; ESLint hai file sửa PASS; 4/4 kiểm tra URL với fetch giả lập PASS. HTTP dùng xác thực/repository giả lập, SQL dùng pool giả lập; chưa kiểm thử trình duyệt/PostgreSQL thật; clone sạch chưa thực hiện. Kết quả này cập nhật trạng thái chưa chạy test ở bước backend bên dưới.
+- FR8/US8 — backend lọc giai đoạn: getAll nhận stage mặc định null, thêm điều kiện SQL $4 và tham số thứ tư; service chấp nhận TIEP_CAN/TU_VAN/BAO_GIA/CHOT, từ chối giá trị khác (kể cả chuỗi rỗng) trước truy vấn; GET danh sách đọc req.query.stage, trả 400 INVALID_STAGE khi sai. Giữ nguyên phạm vi quyền và che điện thoại.
+- Kiểm chứng bước FR8 backend: node --check cả 3 file PASS; git diff --check PASS. Theo yêu cầu người dùng chưa chạy npm test, chưa nối React/chạy API hoặc PostgreSQL thật. Bước sau cần cập nhật kỳ vọng tham số getAll trong tests/opportunity.read.test.js (thêm null khi không lọc), bổ sung ca FR8 rồi chạy test sau khi nối React; kết quả 60/60 trước đó không phải kết quả của thay đổi FR8 này.
+- API sản phẩm: theo yêu cầu người dùng, toàn bộ router dùng authenticate; POST/PATCH/DELETE chỉ cho MANAGER, GET cho tài khoản đã xác thực. node --check router PASS; npm.cmd test PASS 60/60, gồm test HTTP mới với 20 trường hợp (5 route × thiếu token/token sai/SALES/MANAGER), xác thực và service giả lập; yêu cầu bị chặn không gọi service. Chưa kiểm thử token thật/PostgreSQL thật.
+- Bước 2–3: FR2 gộp điện thoại dưới tên khách hàng, cột Sản phẩm ngay sau Khách hàng và trước Nhu cầu; DataState nhận emptyMessage với mặc định cũ, trang danh sách dùng "Chưa có cơ hội bán hàng.". FR3 bỏ mã khách hàng/sản phẩm; client dịch lỗi OPPORTUNITY_NOT_FOUND và UNAUTHENTICATED sang thông báo tiếng Việt theo yêu cầu.
+- Kiểm chứng bổ sung bước 2–3: build frontend PASS; ESLint cả 4 file React/API thay đổi PASS; 4/4 kiểm tra client với fetch giả lập PASS (404, 401, 403 và danh sách rỗng 200). Chưa kiểm thử trình duyệt/PostgreSQL thật; clone sạch vẫn để sau.
+- FR2 danh sách và FR3 chi tiết: thêm customer_name/product_name/customer_phone qua JOIN, bảo toàn WHERE và tham số lọc quyền; service che điện thoại SALES trước phản hồi API, MANAGER nhận số đầy đủ; React hiển thị các trường này.
+- Đã chạy: npm.cmd test PASS 59/59; build frontend PASS; ESLint hai trang chỉnh sửa PASS; git diff --check PASS. Lint toàn frontend FAIL vì hai lỗi set-state-in-effect có sẵn trong OpportunityReport.jsx và CreateOpportunityPage.jsx.
+- Test mới dùng pool/repository/xác thực giả lập; kiểm tra SQL/params, che số, HTTP có quyền/ngoài quyền/không tồn tại/thiếu token. Chưa chạy PostgreSQL thật hoặc kiểm thử trình duyệt. Ngoài quyền vẫn trả 404 như code hiện tại, khác 403 trong API contract; xem nhật ký thiết kế. Clone sạch chưa thực hiện.
+
 - ChatGPT Project CDTN1: noi phan tich bai giang, doi chieu case study, ra quyet dinh.
 - Sau quyet dinh quan trong: cap nhat tom tat chinh xac vao file nay va/hoac `docs/thay-doi-thiet-ke.md`.
 - Codex: doc file nay va cac file nguon trong repo, sau do moi sua code theo nhiem vu duoc phe duyet.

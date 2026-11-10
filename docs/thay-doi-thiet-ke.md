@@ -118,6 +118,14 @@ Ngày cập nhật: 17/10/2026
 - Kết quả chạy npm test trên máy: 30/30 PASS, 0 FAIL.
 - API sản phẩm chưa được tích hợp đăng nhập/phân quyền.
 
+## 01/11/2026 — Phễu và lịch sử (FR7, FR9)
+- Phễu chỉ cho MANAGER, nhóm theo stage hiện tại trong cửa hàng; trả đủ bốn stage, kể cả 0.
+- Lịch sử kiểm tra quyền xem cơ hội, sắp thời gian và history_id tăng dần. Thêm bảng hiển thị với loading/empty/error.
+- Giao diện quản lý ẩn thao tác chuyển giai đoạn/ghi kết quả, Backend vẫn kiểm tra quyền.
+- AI soạn code và test; kiểm chứng tự động và API PGlite, chưa kiểm thử trình duyệt/PostgreSQL 16 trên máy sinh viên.
+
+
+
 
 ## Cập nhật 01/11/2026 — Hoàn thiện quyền thao tác L3
 - Thay đổi: xóa/chuyển giai đoạn/ghi kết quả nhận tài khoản xác thực; chỉ SALES thao tác cơ hội phụ trách, SQL giới hạn owner và store. changed_by lấy từ tài khoản xác thực. Xóa cơ hội có lịch sử bị FK chặn và trả 409 OPPORTUNITY_HAS_HISTORY.
@@ -126,12 +134,30 @@ Ngày cập nhật: 17/10/2026
 - Kiểm chứng: 39/39 test tự động PASS với repository/kết nối giả lập; chưa chạy PostgreSQL thật hoặc kiểm thử trình duyệt. Build tại môi trường Linux bị chặn bởi binding native Windows trong ZIP; cần npm run build trên máy sinh viên.
 
 
-## 01/11/2026 — Chọn dữ liệu tham chiếu
+
+## Sau phản hồi Bài tập 2
+
+### Bổ sung 10/11/2026 — Xác thực và phân quyền API sản phẩm
+- Theo yêu cầu người dùng, dùng authenticate cho toàn bộ router sản phẩm; thêm requireProductManager trước ba route POST/PATCH/DELETE. SALES và MANAGER đã xác thực đều đọc được; chỉ MANAGER được ghi. Đây là bảo vệ CRUD sản phẩm đã có, không bổ sung chức năng nghiệp vụ L3 hoặc thay mã FR.
+- Kiểm chứng: node --check src/routes/product.routes.js PASS; npm.cmd test PASS 60/60. Test HTTP mới dùng xác thực/service giả lập, kiểm tra 20 trường hợp trên 5 route: thiếu token hoặc token sai trả 401, SALES ghi trả 403, MANAGER đi tiếp vào service; yêu cầu bị chặn không gọi service. Chưa kiểm thử token thật/PostgreSQL thật.
+
+### Bổ sung 10/11/2026 — FR8/US8 lọc giai đoạn ở backend
+- Theo mẫu người dùng: repository getAll(user, stage = null) thêm AND ($4::varchar IS NULL OR o.stage = $4); giữ nguyên điều kiện quyền và JOIN. Service kiểm tra 4 mã TIEP_CAN/TU_VAN/BAO_GIA/CHOT, chỉ undefined được hiểu là không lọc; stage sai/rỗng trả INVALID_STAGE trước truy vấn. GET danh sách truyền req.query.stage, ánh xạ lỗi này sang HTTP 400. Tiếp tục che số điện thoại theo vai trò.
+- Khác biệt API contract: tài liệu dùng CONTACT/CONSULTING/QUOTATION/CLOSED; bước này dùng các mã tiếng Việt hiện có trong code/PostgreSQL theo chỉ định người dùng, không đổi enum hoặc hợp đồng cũ.
+- node --check 3 file và git diff --check PASS; chưa chạy npm test theo yêu cầu, chưa kiểm chứng SQL/HTTP thật. Nối React và cập nhật/bổ sung test FR8 ở bước sau (TC21–TC23); không coi FR8 đã hoàn tất.
+
+### Bổ sung 10/11/2026 — Dữ liệu đọc FR2/FR3
+- Bước 2–3 theo mẫu được người dùng cung cấp: FR2 đặt điện thoại trong thẻ small dưới tên khách hàng, cột Sản phẩm ngay sau Khách hàng và trước Nhu cầu; bổ sung emptyMessage cho DataState, mặc định "Không có dữ liệu để hiển thị.", danh sách dùng "Chưa có cơ hội bán hàng.". FR3 thay mã khách hàng/sản phẩm bằng tên và điện thoại; client dịch OPPORTUNITY_NOT_FOUND/UNAUTHENTICATED sang tiếng Việt. Không đổi mã HTTP hoặc phân quyền. Build, ESLint 4 file và 4 kiểm tra client giả lập PASS; chưa kiểm thử trình duyệt.
+- Theo yêu cầu người dùng: JOIN customer/product trong getAll và getByIdForUser, trả customer_name, product_name, customer_phone; giữ nguyên WHERE và mảng tham số phân quyền (QT-14).
+- Service che số điện thoại trước khi trả danh sách/chi tiết cho SALES: giữ 3 số đầu/cuối nếu dài từ 8 ký tự, che toàn bộ số ngắn hơn; MANAGER xem đầy đủ (QT-15). React hiển thị tên khách hàng, sản phẩm và số điện thoại do API trả về.
+- Khác biệt với API contract: code hiện trả 404 OPPORTUNITY_NOT_FOUND cho cả ngoài phạm vi và ID không tồn tại, còn hợp đồng mô tả ngoài phạm vi là 403. Giữ nguyên hành vi hiện tại theo yêu cầu bảo toàn lọc quyền; chưa sửa hợp đồng hoặc mở rộng phạm vi.
+- Kiểm chứng: 59/59 test PASS; build PASS; ESLint hai trang sửa PASS. Lint toàn frontend FAIL tại OpportunityReport.jsx và CreateOpportunityPage.jsx do react-hooks/set-state-in-effect có sẵn. Test dùng SQL/params và repository/xác thực giả lập, chưa thực thi SQL trên PostgreSQL thật hoặc kiểm thử trình duyệt. Clone sạch để sau.
+
 Theo yêu cầu sinh viên: seed 10 khách hàng mô phỏng và 8 sản phẩm; form tạo chọn tên qua GET /api/opportunities/references có xác thực, không trả số điện thoại. Không thêm CRUD khách hàng. AI soạn code; kiểm chứng bằng unit test, build và API PGlite; cần xác nhận trên máy sinh viên.
 
 
-## 01/11/2026 — Phễu và lịch sử (FR7, FR9)
-- Phễu chỉ cho MANAGER, nhóm theo stage hiện tại trong cửa hàng; trả đủ bốn stage, kể cả 0.
-- Lịch sử kiểm tra quyền xem cơ hội, sắp thời gian và history_id tăng dần. Thêm bảng hiển thị với loading/empty/error.
-- Giao diện quản lý ẩn thao tác chuyển giai đoạn/ghi kết quả, Backend vẫn kiểm tra quyền.
-- AI soạn code và test; kiểm chứng tự động và API PGlite, chưa kiểm thử trình duyệt/PostgreSQL 16 trên máy sinh viên.
+
+
+## Bổ sung 10/11/2026 — React FR8/US8
+- Theo yêu cầu người dùng: getOpportunities(stage = '') gửi stage qua encodeURIComponent, bỏ query khi chọn Tất cả. Trang danh sách thêm stageFilter, tải lại theo [retry, stageFilter]; ô chọn Tất cả/Tiếp cận/Tư vấn/Báo giá/Chốt nằm trước DataState để sử dụng được khi rỗng/lỗi. Giữ nguyên quyền và che số ở backend.
+- Cập nhật test tham số SQL, bổ sung kiểm tra lọc/bỏ lọc và stage sai/rỗng/query lặp (TC21–TC23). Kết quả mới: 63/63 test PASS; build và ESLint hai file sửa PASS; 4/4 kiểm tra URL giả lập PASS. Chưa kiểm thử trình duyệt/PostgreSQL thật; kết quả này cập nhật bước backend trước đó vốn chưa chạy test.
