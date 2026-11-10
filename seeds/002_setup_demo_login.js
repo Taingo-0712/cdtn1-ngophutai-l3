@@ -79,6 +79,12 @@ async function main() {
         store: "MM001"
       },
       {
+        username: "ngopphutai",
+        name: "Nhan vien sale",
+        role: "SALES",
+        store: "MM001"
+      },
+      {
         username: "sales03",
         name: "Nhan vien thu nghiem 03",
         role: "SALES",
@@ -288,7 +294,7 @@ async function main() {
     transactionStarted = false;
 
     console.log(
-      "Da thiet lap: sales01, sales02, sales03, manager01, manager02."
+      "Da thiet lap: sales01, ngophutai, sales02, sales03, manager01, manager02."
     );
     console.log("Mat khau ca 5 tai khoan lay tu DEMO_PASSWORD.");
     console.table(testData.rows);
