@@ -88,3 +88,22 @@ for (const [label, state, message] of [
     assert.equal(release.mock.callCount(), 1);
   });
 }
+
+test('TC-02 FR4 tu choi gia tri co hoi am -1', async (t) => {
+  const write = t.mock.method(
+    repository,
+    'updateForOwner',
+    async () => {}
+  );
+
+  await assert.rejects(
+    service.updateOpportunity(
+      '10',
+      { product_id: '2', expected_value: -1 },
+      sales
+    ),
+    { message: 'INVALID_EXPECTED_VALUE' }
+  );
+
+  assert.equal(write.mock.callCount(), 0);
+});
