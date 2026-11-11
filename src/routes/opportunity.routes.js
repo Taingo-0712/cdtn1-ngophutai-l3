@@ -154,10 +154,13 @@ router.patch("/:id/stage", async (req, res) => {
 
     if (error.message === "RESULT_ALREADY_RECORDED") return res.status(409).json({ message: error.message });
 
-    if (
-      error.message === "INVALID_STAGE" ||
-      error.message === "INVALID_STAGE_TRANSITION"
-    ) {
+    if (error.message === "INVALID_STAGE_TRANSITION") {
+      return res.status(409).json({
+        message: error.message
+      });
+    }
+
+    if (error.message === "INVALID_STAGE") {
       return res.status(400).json({
         message: error.message
       });
