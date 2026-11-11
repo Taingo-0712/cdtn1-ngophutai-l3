@@ -83,8 +83,9 @@ async function createOpportunity(data, user) {
   if (
     !["number", "string"].includes(typeof expected_value) ||
     String(expected_value).trim() === "" ||
-    !Number.isFinite(Number(expected_value)) ||
-    Number(expected_value) < 0
+    !Number.isSafeInteger(Number(expected_value)) ||
+    Number(expected_value) < 0 ||
+    Number(expected_value) > 999999999999999
   ) {
     throw new Error("INVALID_EXPECTED_VALUE");
   }
