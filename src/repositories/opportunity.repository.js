@@ -94,7 +94,16 @@ async function create(data) {
       expected_value,
       stage
     )
-    VALUES ($1, $2, $3, $4, $5, 'TIEP_CAN')
+    SELECT
+      $1,
+      p.product_id,
+      $3,
+      $4,
+      $5,
+      'TIEP_CAN'
+    FROM product AS p
+    WHERE p.product_id = $2
+      AND p.is_active = TRUE
     RETURNING *
     `,
     [
@@ -105,6 +114,10 @@ async function create(data) {
       expected_value
     ]
   );
+
+  if (result.rows.length === 0) {
+    throw new Error("INVALID_REFERENCE");
+  }
 
   return result.rows[0];
 }

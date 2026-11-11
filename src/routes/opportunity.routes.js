@@ -113,7 +113,8 @@ router.post("/", async (req, res) => {
         "INVALID_OPPORTUNITY_DATA",
         "MISSING_REQUIRED_FIELDS",
         "INVALID_NEED_DESC",
-        "INVALID_EXPECTED_VALUE"
+        "INVALID_EXPECTED_VALUE",
+        "INVALID_REFERENCE"
       ].includes(error.message)
     ) {
       return res.status(400).json({
