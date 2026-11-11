@@ -1,4 +1,16 @@
 # BẢNG KHAI BÁO SỬ DỤNG CÔNG CỤ AI HỖ TRỢ
+
+## Bổ sung 11/11/2026 — Regression test BUG-03 (US1/FR1)
+- Bước route tiếp theo: Codex thêm INVALID_REFERENCE vào danh sách lỗi 400 của POST theo yêu cầu, giữ nguyên logic khác. Kiểm tra HTTP bằng script Node với xác thực/repository giả lập PASS: POST trả 400 và JSON { "message": "INVALID_REFERENCE" }. Chưa kiểm thử PostgreSQL thật; không chạy lại toàn bộ bộ test ở bước route này.
+- Bước sửa sau đó: Codex thay SQL trong repository.create bằng INSERT SELECT từ product với product_id khớp và is_active = TRUE, ném INVALID_REFERENCE khi rows rỗng, đúng mã người dùng cung cấp. npm.cmd test PASS 73/73, FAIL 0, gồm test sản phẩm ngừng kinh doanh đã đổi tên theo yêu cầu. Test dùng mock; chưa thực thi SQL trên PostgreSQL thật. Route POST chưa ánh xạ lỗi message INVALID_REFERENCE sang 400.
+- Codex tạo tests/opportunity.create.repository.test.js đúng mã người dùng cung cấp; mock pool.query theo điều kiện SQL FROM product và is_active = TRUE, kỳ vọng repository.create từ chối với INVALID_REFERENCE.
+- Chạy node --test tests/opportunity.create.repository.test.js: PASS 0, FAIL 1 với Missing expected rejection. Đây là bằng chứng trước sửa; chưa sửa repository, chưa chạy lại toàn bộ bộ test. Không kết nối/ghi PostgreSQL thật; test kiểm tra theo mẫu SQL, không xác minh thực thi SQL trên PostgreSQL.
+
+## Bổ sung 11/11/2026 — Regression test BUG-02 (US1/FR1)
+- Bước sửa sau đó, 11/11/2026: Codex thay validation createOpportunity đúng mã người dùng cung cấp: Number.isSafeInteger, không âm, tối đa 999999999999999. Chạy npm.cmd test PASS 72/72, FAIL 0, gồm regression test BUG-02 xác nhận từ chối 1.5 và không gọi repository.create. Chưa kiểm thử PostgreSQL thật; không sửa validation cập nhật cơ hội.
+- Codex thêm nguyên đoạn test người dùng cung cấp vào cuối tests/opportunity.service.test.js, giữ nguyên test cũ; yêu cầu từ chối expected_value = 1.5 với INVALID_EXPECTED_VALUE và không gọi repository.create.
+- Đã chạy node --test tests/opportunity.service.test.js: PASS 1, FAIL 1. Test BUG-02 FAIL với Missing expected rejection, ghi nhận bằng chứng trước khi sửa. Repository.create được mock, không ghi DB thật. Chưa sửa Service, chưa có bằng chứng PASS sau sửa và chưa chạy toàn bộ bộ test.
+
 **Học phần:** Chuyên đề Tốt nghiệp 1 (Specialized Graduation Topic I)  
 **Học kỳ:** HK1, Năm học 2026 – 2027  
 **Bài nộp:** [x] Khởi động cá nhân & Setup môi trường [x] Bài tập 1 (BT1)   [ ] Bài tập 2 (BT2)   [ ] Bài tập 3 (BT3)  
@@ -157,3 +169,10 @@
 * **Chữ ký / Họ tên sinh viên:** Ngô Phú Tài
 * **Ngày khai báo:** 29/09/2026
 * **Ngày bổ sung khai báo BT1:** 27/10/2026
+## Bổ sung 10/11/2026 — Test riêng TC-02 FR4
+- Codex thêm nguyên đoạn test người dùng cung cấp vào cuối tests/opportunity.update.test.js: cập nhật expected_value = -1 phải báo INVALID_EXPECTED_VALUE và không gọi updateForOwner.
+- Kiểm chứng: node --test tests/opportunity.update.test.js PASS 8/8, FAIL 0; test dùng repository giả lập, không ghi PostgreSQL thật. Chưa chạy lại toàn bộ npm test trong bước này.
+
+## Bổ sung 11/11/2026 — Ánh xạ lỗi chuyển giai đoạn FR5
+- Codex thay đoạn catch trong src/routes/opportunity.routes.js theo mẫu sinh viên: INVALID_STAGE_TRANSITION trả HTTP 409, INVALID_STAGE trả 400; không đổi quy tắc nghiệp vụ.
+- Kiểm chứng: cú pháp router PASS; 14/14 test stage service/repository PASS; 2/2 kiểm tra HTTP với xác thực/service giả lập PASS. Không ghi DB thật; chưa chạy toàn bộ npm test hoặc kiểm thử PostgreSQL thật.

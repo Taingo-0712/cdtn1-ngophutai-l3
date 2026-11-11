@@ -188,6 +188,20 @@ Ngày tổng hợp 10/11/2026. Các mục TD-17 đến TD-20 ghi nhận phản h
 - **Điểm cần đối chiếu** — API hiện trả `404 OPPORTUNITY_NOT_FOUND` cho cơ hội ngoài phạm vi và cơ hội không tồn tại. Hợp đồng API BT1 mô tả trường hợp ngoài phạm vi bằng `403`. [Hợp đồng API](api-contract.md).
 - **Kiểm chứng** — Tại thời điểm cập nhật, bộ kiểm thử đạt 59/59 với truy vấn, repository hoặc xác thực giả lập. Build và ESLint trên các tệp đã sửa đạt. Lần chạy lint toàn frontend ghi nhận lỗi có sẵn về `react-hooks/set-state-in-effect` tại `OpportunityReport.jsx` và `CreateOpportunityPage.jsx`.
 
+### BUG-03 — Chặn tạo cơ hội với sản phẩm ngừng kinh doanh (11/11/2026, US1/FR1)
+
+- Cập nhật bước route theo yêu cầu người dùng: thêm INVALID_REFERENCE vào danh sách lỗi 400 của POST, hoàn thành việc ánh xạ nêu bên dưới. Kiểm tra HTTP bằng script Node với xác thực/repository giả lập PASS: status 400, JSON { "message": "INVALID_REFERENCE" }; chưa kiểm thử PostgreSQL thật hoặc chạy lại toàn bộ bộ test ở bước này.
+
+- Theo mã người dùng phê duyệt, repository.create thay INSERT VALUES bằng INSERT SELECT từ product theo product_id và is_active = TRUE. Nếu rows rỗng, ném INVALID_REFERENCE; giữ nguyên tham số truy vấn.
+- Kiểm chứng: npm.cmd test PASS 73/73, FAIL 0; regression test sản phẩm ngừng kinh doanh chuyển từ FAIL trước sửa sang PASS. Test dùng pool.query giả lập, chưa thực thi SQL trên PostgreSQL thật.
+- Việc tiếp theo: POST hiện xử lý code 23503 nhưng chưa xử lý message INVALID_REFERENCE mới, nên lỗi này sẽ trả 500. Cần ánh xạ sang 400 ở bước tiếp theo; chưa sửa route trong yêu cầu này.
+
+### BUG-02 — Validation tiền khi tạo cơ hội (11/11/2026, US1/FR1)
+
+- Theo mã người dùng phê duyệt, createOpportunity thay Number.isFinite bằng Number.isSafeInteger và giới hạn tối đa 999999999999999, giữ kiểm tra kiểu number/string, chuỗi rỗng và số âm. Giá trị thập phân bị chặn trước repository.
+- Khác biệt còn tồn tại: [API contract](api-contract.md) mục 5 quy định tối đa 1000000000000 và không chấp nhận chuỗi; mã được yêu cầu vẫn chấp nhận chuỗi biểu diễn số nguyên. Đề xuất đối chiếu và thống nhất hợp đồng ở bước sau; chưa tự sửa hợp đồng hoặc validation cập nhật cơ hội.
+- Kiểm chứng: regression test BUG-02 đã FAIL trước sửa (Missing expected rejection); sau sửa npm.cmd test PASS 72/72, FAIL 0, gồm kiểm tra repository.create không được gọi với 1.5. Chưa kiểm thử PostgreSQL thật.
+
 ### TD-23 — Bổ sung dữ liệu tham chiếu cho form tạo cơ hội (FR1)
 
 - **Căn cứ** — Cải tiến form tạo cơ hội trong quá trình hoàn thiện FR1.
@@ -196,4 +210,7 @@ Ngày tổng hợp 10/11/2026. Các mục TD-17 đến TD-20 ghi nhận phản h
 - **Ảnh hưởng** — Bổ sung seed 10 khách hàng mô phỏng và 8 sản phẩm. Form gọi `GET /api/opportunities/references` sau xác thực. API trả các trường cần cho danh sách chọn và loại số điện thoại khỏi phản hồi. Khách hàng tiếp tục được dùng làm dữ liệu tham chiếu của luồng L3.
 - **Kiểm chứng** — Đã kiểm tra bằng bộ kiểm thử tự động, build frontend và API với PGlite ở bước phát triển. Phép dựng lại độc lập được theo dõi tại TD-19.
 
-Các số 59/59, 60/60 và 63/63 là kết quả theo từng mốc cập nhật. Bộ kiểm thử tự động của bản hiện tại đạt 70/70 trên máy phát triển. [Kết quả tổng hợp trong README](../README.md#kiểm-thử-và-build).
+
+## Bổ sung 11/11/2026 — HTTP 409 cho chuyển giai đoạn sai quy tắc (FR5/US5)
+- Theo mã người dùng cung cấp, sửa riêng catch của PATCH /api/opportunities/:id/stage: INVALID_STAGE_TRANSITION trả 409, INVALID_STAGE giữ 400. Giải quyết khác biệt 400/409 từng ghi ở TD-09; không đổi service/repository hoặc quy tắc chuyển giai đoạn.
+- Kiểm chứng: node --check router PASS; node --test tests/opportunity.stage.service.test.js tests/opportunity.stage.repository.test.js PASS 14/14; script kiểm tra HTTP auth/service giả lập PASS 2/2 (409 và 400, JSON message giữ nguyên). Chưa chạy toàn bộ npm test, chưa kiểm thử PostgreSQL thật.
