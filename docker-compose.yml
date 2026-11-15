@@ -1,0 +1,69 @@
+name: cdtn1-l3-smart-crm
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:?Missing DB_NAME}
+      POSTGRES_USER: ${DB_USER:?Missing DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Missing DB_PASSWORD}
+    volumes:
+      - l3_database:/var/lib/postgresql/data
+      - ./db/10-init.sh:/docker-entrypoint-initdb.d/10-init.sh:ro
+      - ./migrations:/db-migrations:ro
+      - ./seeds/001_seed_demo.sql:/db-seed/001_seed_demo.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 10s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      PORT: "3000"
+      NODE_ENV: production
+    ports:
+      - "127.0.0.1:${APP_PORT:-3000}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/health').then(r => {if(!r.ok) process.exit(1); return r.json()}).then(x => process.exit(x.status === 'ok' && x.database === 'connected' ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${WEB_PORT:-5173}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+      start_period: 10s
+
+volumes:
+  l3_database:

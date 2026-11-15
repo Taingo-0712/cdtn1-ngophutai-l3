@@ -1,0 +1,13 @@
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+node_modules
+frontend
+README.md
+docs
+*.log
+coverage
+*.dump
+*.backup
