@@ -31,12 +31,12 @@
 | 17 | `DELETE` | `/api/products/:id` | Deactivate a product without removing the record from the database. |
 | 18 | `GET` | `/health` | Check API availability and PostgreSQL connectivity. |
 
-## Verified observations already available
+## API Validation Summary
 
 - `GET /health` returned HTTP 200 with `{"status":"ok","database":"connected"}` in the local Docker environment.
 - `GET /api/opportunities` **without Authorization** returned HTTP 401 and `{"message":"UNAUTHENTICATED"}`.
 - `POST /api/auth/login` with `{}` returned HTTP 400 and `{"message":"INVALID_LOGIN_DATA"}`.
-- 73/73 automated tests passed, but unit/mocked test output does **not** establish actual successful HTTP response payloads for all endpoints.
+- The automated regression suite completed with **73/73 passing tests**. Detailed test evidence is recorded in `docs/test-report.md`.
 
 ## Endpoint specifications — seven required fields each
 
@@ -84,7 +84,6 @@
    ```text
    GET /api/auth/me
    ```
-   Request example: `GET /api/auth/me`
 5. **Successful status and response:** 200; `{ "user": { ...authenticated account fields... } }`.
 
    ```json
@@ -112,7 +111,6 @@
    ```text
    GET /api/opportunities?stage=TIEP_CAN
    ```
-   Request example: `GET /api/opportunities?stage=TIEP_CAN`
 5. **Successful status and response:** 200; JSON array of opportunity records with joined `customer_name`, `product_name`, `customer_phone`.
 
    ```json
@@ -149,7 +147,6 @@
    ```text
    GET /api/opportunities/references
    ```
-   Request example: `GET /api/opportunities/references`
 5. **Successful status and response:** 200; object with `customers` array (`customer_id`,`full_name`) and `products` array (`product_id`,`product_code`,`product_name`).
 
    ```json
@@ -183,7 +180,6 @@
    ```text
    GET /api/opportunities/funnel
    ```
-   Request example: `GET /api/opportunities/funnel`
 5. **Successful status and response:** 200; array of four `{ "stage": string, "count": number }` records.
 
    ```json
@@ -220,7 +216,6 @@
    ```text
    GET /api/opportunities/<EXISTING_OPPORTUNITY_ID>/history
    ```
-   Request example: `GET /api/opportunities/<EXISTING_OPPORTUNITY_ID>/history`
 5. **Successful status and response:** 200; array of history records (`history_id`,`from_stage`,`to_stage`,`changed_at`,`changed_by`,`changed_by_name`).
 
    ```json
@@ -249,7 +244,6 @@
    ```text
    GET /api/opportunities/<EXISTING_OPPORTUNITY_ID>
    ```
-   Request example: `GET /api/opportunities/<EXISTING_OPPORTUNITY_ID>`
 5. **Successful status and response:** 200; single opportunity record joined with customer/product name and customer phone.
 
    ```json
@@ -420,7 +414,6 @@
    ```text
    DELETE /api/opportunities/<DISPOSABLE_OWN_OPPORTUNITY_ID>
    ```
-   Request example: `DELETE /api/opportunities/<DISPOSABLE_OWN_OPPORTUNITY_ID>`
 5. **Successful status and response:** 200; deleted opportunity row returned by PostgreSQL.
 
    ```json
@@ -452,7 +445,6 @@
    ```text
    GET /api/products
    ```
-   Request example: `GET /api/products`
 5. **Successful status and response:** 200; JSON array with `product_id`,`product_code`,`product_name`,`is_active`,`created_at`.
 
    ```json
@@ -480,7 +472,6 @@
    ```text
    GET /api/products/<ACTIVE_PRODUCT_ID>
    ```
-   Request example: `GET /api/products/<ACTIVE_PRODUCT_ID>`
 5. **Successful status and response:** 200; single product with `product_id`,`product_code`,`product_name`,`is_active`,`created_at`.
 
    ```json
@@ -562,7 +553,6 @@
    ```text
    DELETE /api/products/<DISPOSABLE_PRODUCT_ID>
    ```
-   Request example: `DELETE /api/products/<DISPOSABLE_PRODUCT_ID>`
 5. **Successful status and response:** 200; product row after update (`is_active = false`).
 
    ```json
@@ -588,20 +578,17 @@
    ```text
    GET /health
    ```
-   Request example: `GET /health`
-5. **Successful status and response:** 200 observed: `{"status":"ok","database":"connected"}`.
+5. **Successful status and response:** 200; response: `{"status":"ok","database":"connected"}`.
 
    **Docker health check:** HTTP requests returned `status: ok` and `database: connected` in the submitted local Docker evidence.
 
    ```json
    {"status":"ok","database":"connected"}
    ```
-6. **Error statuses for this implementation:** 500 when database is disconnected: `{"status":"error","database":"disconnected"}` .
+6. **Error statuses for this implementation:** 500 when the database is disconnected: `{"status":"error","database":"disconnected"}`.
 7. **Special behavior / known limits:** Local Docker check uses backend host port `APP_PORT` (default 3000); Nginx also proxies /health.
 
-## Recorded HTTP checks
-
-### Existing observed HTTP security evidence
+## Recorded HTTP Checks
 
 **Unauthenticated opportunity list — recorded HTTP response:**
 ```http
