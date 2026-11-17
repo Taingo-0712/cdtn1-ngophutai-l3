@@ -214,3 +214,33 @@ Ngày tổng hợp 10/11/2026. Các mục TD-17 đến TD-20 ghi nhận phản h
 ## Bổ sung 11/11/2026 — HTTP 409 cho chuyển giai đoạn sai quy tắc (FR5/US5)
 - Theo mã người dùng cung cấp, sửa riêng catch của PATCH /api/opportunities/:id/stage: INVALID_STAGE_TRANSITION trả 409, INVALID_STAGE giữ 400. Giải quyết khác biệt 400/409 từng ghi ở TD-09; không đổi service/repository hoặc quy tắc chuyển giai đoạn.
 - Kiểm chứng: node --check router PASS; node --test tests/opportunity.stage.service.test.js tests/opportunity.stage.repository.test.js PASS 14/14; script kiểm tra HTTP auth/service giả lập PASS 2/2 (409 và 400, JSON message giữ nguyên). Chưa chạy toàn bộ npm test, chưa kiểm thử PostgreSQL thật.
+
+## Bổ sung 11/11/2026 — Kết quả khắc phục lỗi sau kiểm thử Buổi 14
+
+Các thay đổi dưới đây phát sinh từ quá trình kiểm thử hệ thống,
+được ghi nhận bổ sung bên cạnh các thay đổi theo feedback giảng viên.
+
+- BUG-01: Sửa HTTP 400 thành HTTP 409 cho INVALID_STAGE_TRANSITION.
+  Kiểm chứng Postman HTTP 409 và 14/14 test PASS.
+  Commit: 36204ce.
+
+- BUG-02: Sửa validation expected_value khi tạo cơ hội,
+  từ chối giá trị tiền thập phân 1.5.
+  Regression Test PASS; bộ kiểm thử đạt 72/72 tại thời điểm sửa.
+  Commit: 71f0e62.
+
+- BUG-03: Ngăn tạo cơ hội với sản phẩm is_active = false.
+  Repository từ chối bằng INVALID_REFERENCE;
+  Route POST trả HTTP 400.
+  Đã kiểm chứng với PostgreSQL thật và Postman.
+  Commit: ccb4417.
+
+- Kết quả kiểm thử tự động cuối cùng: 73 PASS, 0 FAIL.
+- Test Plan, Test Report, Bug Log và ảnh minh chứng đã được
+  cập nhật lên GitHub tại commit f634245.
+
+
+## 16/11/2026 ? Gi?m d? li?u trong log theo y?u c?u ?? duy?t
+- Seed 002 ch? th?ng b?o thi?t l?p 6 t?i kho?n v? kh?i t?o c? h?i th?nh c?ng; b? SELECT testData v? console.table, gi? COMMIT c?ng c?c l?nh t?o demo.
+- Hai nh?nh l?i kh?ng d? ki?n khi chuy?n giai ?o?n (US5/FR5) v? ghi k?t qu? (US6/FR6) ch? ghi error.code ho?c UNEXPECTED_ERROR; gi? nguy?n ph?n h?i HTTP v? nghi?p v?. ??y l? gi?m thi?u r?i ro, ch?a ph?i r? so?t m?i ngu?n log.
+- Ki?m ch?ng: c? ph?p hai file PASS; npm.cmd test 73/73 PASS; 4 ca route gi? l?p PASS. Ch?a ch?y seed/Docker/PostgreSQL th?t.

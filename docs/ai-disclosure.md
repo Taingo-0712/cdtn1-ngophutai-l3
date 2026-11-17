@@ -176,3 +176,20 @@
 ## Bổ sung 11/11/2026 — Ánh xạ lỗi chuyển giai đoạn FR5
 - Codex thay đoạn catch trong src/routes/opportunity.routes.js theo mẫu sinh viên: INVALID_STAGE_TRANSITION trả HTTP 409, INVALID_STAGE trả 400; không đổi quy tắc nghiệp vụ.
 - Kiểm chứng: cú pháp router PASS; 14/14 test stage service/repository PASS; 2/2 kiểm tra HTTP với xác thực/service giả lập PASS. Không ghi DB thật; chưa chạy toàn bộ npm test hoặc kiểm thử PostgreSQL thật.
+
+
+## Bổ sung 11/11/2026 — Tổng kết kiểm thử và sửa lỗi Buổi 14
+
+- **Thiết kế kiểm thử:** Sử dụng ChatGPT hỗ trợ giải thích Test Plan, Test Report, Bug Log và rà soát 15 Test Case. Sinh viên kiểm tra, điều chỉnh nội dung và đối chiếu với yêu cầu dự án.
+- **BUG-01 / TC-13:** AI hỗ trợ phân tích sự không khớp giữa API Contract và Backend. Sinh viên tái hiện HTTP 400 bằng Postman, sửa ánh xạ lỗi, kiểm thử lại HTTP 409 và chạy 14/14 bài test chuyển giai đoạn PASS. Commit: `36204ce`.
+- **BUG-02 / TC-14:** AI hỗ trợ xác định điểm thiếu trong validation và xây dựng Regression Test. Sinh viên xác nhận test FAIL trước sửa, PASS sau sửa; bộ kiểm thử tại thời điểm đó đạt 72/72 PASS. Commit: `71f0e62`.
+- **BUG-03 / TC-15:** AI hỗ trợ phân tích việc Backend chấp nhận sản phẩm ngừng kinh doanh và đề xuất cách kiểm tra. Sinh viên tái hiện lỗi trên PostgreSQL thử, kiểm chứng ROLLBACK, sửa Repository và Route. Kiểm thử lại với PostgreSQL thật trả `INVALID_REFERENCE`; Postman trả HTTP 400. Commit: `ccb4417`.
+
+
+## Bo sung 15/11/2026 - Giu LF cho shell script
+- Codex tao .gitattributes theo noi dung nguoi dung cung cap; kiem tra db/10-init.sh da dung LF nen khong sua script.
+- Kiem chung dinh dang byte, git check-attr va git diff --check; khong chay script khoi tao hoac npm test trong buoc nay.
+
+## B? sung 16/11/2026 ? Gi?m d? li?u ghi log
+- Codex s?a seeds/002_setup_demo_login.js v? src/routes/opportunity.routes.js theo n?i dung ng??i d?ng cung c?p: ch? log tr?ng th?i seed, b? truy v?n testData; hai nh?nh l?i stage/result ch? log m? l?i ho?c UNEXPECTED_ERROR. Gi? nguy?n COMMIT v? l?nh t?o d? li?u.
+- Ki?m ch?ng: node --check c? hai file PASS; npm.cmd test PASS 73/73, FAIL 0; 4 ca route gi? l?p PASS cho l?i c?/kh?ng c? code, gi? HTTP 500 v? kh?ng log ??i t??ng l?i. Ch?a ch?y seed ho?c Docker/PostgreSQL th?t; ch?a r? so?t m?i ngu?n log.

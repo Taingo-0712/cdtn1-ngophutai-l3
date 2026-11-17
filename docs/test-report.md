@@ -52,7 +52,7 @@
 
 **Liên kết commit sửa lỗi:** [BUG-01 — `36204ce`](https://github.com/Taingo-0712/cdtn1-ngophutai-l3/commit/36204ce) · [BUG-02 — `71f0e62`](https://github.com/Taingo-0712/cdtn1-ngophutai-l3/commit/71f0e62) · [BUG-03 — `ccb4417`](https://github.com/Taingo-0712/cdtn1-ngophutai-l3/commit/ccb4417).
 
-*Tên ảnh TC-13 đến TC-15 tham chiếu đúng tên file thực tế trong `screenshots.zip`: ảnh FAIL dùng tiền tố `TC-`, một số ảnh Debug/PASS dùng tiền tố `BUG-`. Không cần đổi tên ảnh.*
+
 
 ## 3. Tổng kết kết quả
 
@@ -73,6 +73,6 @@
 - [x] Đã có kết quả kiểm thử cho TC-01 đến TC-15; ba ca bổ sung ghi rõ FAIL trước sửa, PASS sau sửa.
 - [x] Ba lỗi đều có commit sửa riêng và đã được push lên `main`.
 - [x] Đã chạy kiểm thử hồi quy và `npm test`: **73 PASS, 0 FAIL** sau sửa BUG-03.
-- [ ] Đối chiếu **đường dẫn/ảnh thực tế** của TC-01 đến TC-15 trong `docs/screenshots/`; bổ sung ảnh còn thiếu.
-- [ ] Hoàn thiện `docs/bug-log.md`, liên kết TC-13/14/15 và commit tương ứng.
+- [x] Đối chiếu **đường dẫn/ảnh thực tế** của TC-01 đến TC-15 trong `docs/screenshots/`; bổ sung ảnh còn thiếu.
+- [x] Hoàn thiện `docs/bug-log.md`, liên kết TC-13/14/15 và commit tương ứng.
 - [ ] Commit/push Test Report, Bug Log và ảnh chứng cứ; kiểm tra các link GitHub trước khi nộp.
