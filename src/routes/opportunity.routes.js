@@ -167,7 +167,7 @@ router.patch("/:id/stage", async (req, res) => {
       });
     }
 
-    console.error("Update stage error:", error);
+    console.error("Update stage failed:", error.code || "UNEXPECTED_ERROR");
 
     return res.status(500).json({
       message: "INTERNAL_SERVER_ERROR"
@@ -214,7 +214,7 @@ router.patch("/:id/result", async (req, res) => {
       });
     }
 
-    console.error("Update opportunity result error:", error);
+    console.error("Update opportunity result failed:", error.code || "UNEXPECTED_ERROR");
 
     return res.status(500).json({
       message: "INTERNAL_SERVER_ERROR"

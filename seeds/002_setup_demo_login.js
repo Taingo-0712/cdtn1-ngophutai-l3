@@ -268,36 +268,11 @@ async function main() {
       }
     }
 
-    const testData = await client.query(`
-      SELECT
-        o.opportunity_id,
-        u.username,
-        u.user_id,
-        s.store_code,
-        o.need_desc,
-        o.stage,
-        o.expected_value
-      FROM opportunity o
-      JOIN app_user u ON u.user_id = o.owner_id
-      JOIN store s ON s.store_id = u.store_id
-      WHERE
-        o.need_desc IN (
-          'AUTHZ_TEST_sales01',
-          'AUTHZ_TEST_sales02',
-          'AUTHZ_TEST_sales03'
-        )
-        OR LEFT(o.need_desc, 11) = 'AUTHZ_MORE_'
-      ORDER BY u.username, o.opportunity_id
-    `);
-
     await client.query("COMMIT");
     transactionStarted = false;
 
-    console.log(
-      "Da thiet lap: sales01, ngophutai, sales02, sales03, manager01, manager02."
-    );
-    console.log("Mat khau ca 5 tai khoan lay tu DEMO_PASSWORD.");
-    console.table(testData.rows);
+    console.log("Da thiet lap 6 tai khoan demo.");
+    console.log("Da khoi tao du lieu co hoi demo thanh cong.");
   } catch (error) {
     if (client && transactionStarted) {
       await client.query("ROLLBACK");
