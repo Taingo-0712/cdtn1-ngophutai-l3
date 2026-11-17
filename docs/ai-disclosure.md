@@ -190,6 +190,8 @@
 - Codex tao .gitattributes theo noi dung nguoi dung cung cap; kiem tra db/10-init.sh da dung LF nen khong sua script.
 - Kiem chung dinh dang byte, git check-attr va git diff --check; khong chay script khoi tao hoac npm test trong buoc nay.
 
-## B? sung 16/11/2026 ? Gi?m d? li?u ghi log
-- Codex s?a seeds/002_setup_demo_login.js v? src/routes/opportunity.routes.js theo n?i dung ng??i d?ng cung c?p: ch? log tr?ng th?i seed, b? truy v?n testData; hai nh?nh l?i stage/result ch? log m? l?i ho?c UNEXPECTED_ERROR. Gi? nguy?n COMMIT v? l?nh t?o d? li?u.
-- Ki?m ch?ng: node --check c? hai file PASS; npm.cmd test PASS 73/73, FAIL 0; 4 ca route gi? l?p PASS cho l?i c?/kh?ng c? code, gi? HTTP 500 v? kh?ng log ??i t??ng l?i. Ch?a ch?y seed ho?c Docker/PostgreSQL th?t; ch?a r? so?t m?i ngu?n log.
+## Bổ sung 16/11/2026 — Giảm dữ liệu ghi log
+
+- **AI hỗ trợ:** Codex sửa `seeds/002_setup_demo_login.js` và `src/routes/opportunity.routes.js` theo nội dung người dùng cung cấp: chỉ ghi log trạng thái khởi tạo dữ liệu, bỏ truy vấn `testData`; hai nhánh xử lý lỗi chuyển giai đoạn (`stage`) và ghi kết quả (`result`) chỉ ghi mã lỗi hoặc `UNEXPECTED_ERROR`. Giữ nguyên lệnh `COMMIT` và các lệnh tạo dữ liệu demo.
+- **Kiểm chứng ban đầu:** `node --check` cả hai file PASS; `npm.cmd test` đạt 73/73 PASS, 0 FAIL; 4 ca kiểm thử route giả lập PASS. Các nhánh lỗi HTTP 500 không ghi toàn bộ đối tượng lỗi. Tại thời điểm kiểm chứng ban đầu, chưa chạy lại Docker/PostgreSQL thật.
+- **Kiểm chứng bổ sung:** Đã build lại Docker thành công, xác nhận ba container healthy và log khởi động API không còn in bảng dữ liệu cơ hội chi tiết. Bản Cold Clone từ tag `v1.0` chạy thành công với Docker Compose project độc lập; API kết nối PostgreSQL, đăng nhập thành công và 73/73 bài kiểm thử PASS. Chưa kiểm chứng toàn bộ các nhánh lỗi bất thường.
