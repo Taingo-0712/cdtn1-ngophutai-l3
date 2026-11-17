@@ -2,9 +2,9 @@
 
 **Project:** Sales Opportunities and Sales Funnel (L3)  
 **Repository:** https://github.com/Taingo-0712/cdtn1-ngophutai-l3  
-**Submitted version:** `v1.0` — commit `0dd09d1`  
-**Earlier packaging baseline:** commit `1d8ee0b`  
-**Verification:** Cold-cloned and verified locally using Docker Compose on Windows, 17 November 2026.  
+**Submitted version:** `v1.0` — commit `0dd09d1`
+**Earlier packaging baseline:** commit `1d8ee0b`
+**Verification:** Cold-cloned and verified locally using Docker Compose on Windows, 17 November 2026.
 **Scope:** Local classroom prototype; not intended for public production deployment.
 
 ## 1. Requirements
